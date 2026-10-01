@@ -225,7 +225,7 @@ body.noclient .review{display:none}
 .rv .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 .wait{display:none}
 body.locked .wait{display:block;margin-top:16px;background:var(--soft);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:12px 14px;font-size:.88rem;color:var(--ink)}
-body.locked #swotOut{display:none!important}
+body.locked #swotOut,body.locked #stockAlerts,body.locked #expAlerts,body.locked #peAlerts,body.locked #prodAlerts{display:none!important}
 .rv .play{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:var(--bg)}
 .rv .play>summary{cursor:pointer;list-style:none;padding:12px 14px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
 .rv .play>summary::-webkit-details-marker{display:none}
@@ -242,6 +242,10 @@ body.locked #swotOut{display:none!important}
 .rv .play .num b{display:block;font-family:var(--serif);color:var(--brand);font-size:1.02rem}
 .rv .play .num small{color:var(--muted);font-size:.74rem}
 .rv .play blockquote{margin:6px 0 0;padding:10px 12px;background:var(--surface);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;font-size:.85rem}
+.report .notes{margin:8px 0 4px}
+.report .notes .alert{margin:8px 0;page-break-inside:avoid;break-inside:avoid}
+.report .notes h4{font-family:var(--sans);font-size:.86rem;font-weight:600;color:var(--brand);margin:14px 0 4px}
+@media print{.report .notes .alert{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 .lock{text-align:left}
 .lock h3{margin-bottom:6px}
 .lock p{color:var(--muted);margin:0 0 14px;max-width:60ch}
@@ -271,7 +275,7 @@ body.locked #swotOut{display:none!important}
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 9</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 11</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -905,7 +909,7 @@ function go(n){
   cur=Math.min(6,Math.max(1,n));
   document.querySelectorAll('nav.steps button').forEach(b=>b.setAttribute('aria-selected',b.dataset.p==cur));
   document.querySelectorAll('section.panel').forEach(s=>s.classList.toggle('on',s.id==='p'+cur));
-  if(cur===6)renderReport();
+  if(cur===6){renderReport();addReportNotes()}
   paintLock();
   $('prev').style.visibility=cur===1?'hidden':'visible';
   $('next').style.visibility=cur===6?'hidden':'visible';
@@ -915,7 +919,7 @@ document.querySelectorAll('nav.steps button').forEach(b=>b.onclick=()=>go(+b.dat
 $('prev').onclick=()=>go(cur-1);$('next').onclick=()=>go(cur+1);
 
 /* ---------- Cliente ---------- */
-function renderAll(){$('clientName').value=S.client;renderSwot();renderVars();renderPEFields();renderFix();renderStock();renderProd();fillSaved();if(cur===6)renderReport();paintLock()}
+function renderAll(){$('clientName').value=S.client;renderSwot();renderVars();renderPEFields();renderFix();renderStock();renderProd();fillSaved();if(cur===6){renderReport();addReportNotes()}paintLock()}
 $('clientName').oninput=e=>{S.client=e.target.value;save()};
 
 /* ---------- Acesso online ---------- */
@@ -938,6 +942,7 @@ try{
 
 $('authLogo').src=document.querySelector('.brandbar img').src;
 $('p1').insertAdjacentHTML('beforeend','<div class="wait">Marque os pontos que se aplicam ao seu negócio. As soluções e estratégias para cada um deles serão apresentadas pela Elaine na revisão do seu diagnóstico.</div>');
+['p2','p3','p4','p5'].forEach(id=>$(id).insertAdjacentHTML('beforeend','<div class="wait">Os números acima são calculados na hora. A leitura deles, com os pontos de atenção e as recomendações, vem na revisão da Elaine.</div>'));
 function view(v){['vLogin','vForgot','vNewPass'].forEach(id=>$(id).hidden=id!==v);const f=$(v).querySelector('input');if(f)setTimeout(()=>f.focus(),50)}
 function msg(id,t,ok){$(id).textContent=t||'';$(id).className='msg '+(ok?'ok':'err')}
 function fmtDate(s){if(!s)return '—';const d=new Date(s);return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
@@ -1343,6 +1348,17 @@ $('reviewBody').addEventListener('click',async e=>{
     setTimeout(()=>{e.target.textContent='Copiar resumo'},2000);
   }
 });
+
+/* ---------- Pontos de atenção no relatório ---------- */
+function addReportNotes(){
+  const rep=$('report');if(!rep||!rep.innerHTML)return;
+  const parts=[['Estoque e custos','stockAlerts'],['Despesas','expAlerts'],['Quanto vender','peAlerts'],['Nova produção','prodAlerts']]
+    .map(([t,id])=>{const h=$(id)?$(id).innerHTML.trim():'';return h?`<h4>${t}</h4>${h}`:''}).join('');
+  if(!parts)return;
+  const sec=`<h3>Pontos de atenção e recomendações</h3><div class="notes">${parts}</div>`;
+  const last=[...rep.querySelectorAll('h3')].find(h=>/Plano de ação/.test(h.textContent));
+  if(last)last.insertAdjacentHTML('beforebegin',sec);else rep.insertAdjacentHTML('beforeend',sec);
+}
 
 /* ---------- Sessão ---------- */
 async function startSession(session){
