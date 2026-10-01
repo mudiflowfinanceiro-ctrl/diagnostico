@@ -225,11 +225,7 @@ body.noclient .review{display:none}
 .rv .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 .wait{display:none}
 body.locked .wait{display:block;margin-top:16px;background:var(--soft);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:12px 14px;font-size:.88rem;color:var(--ink)}
-body.locked #swotOut,body.locked #stockKpis,body.locked #stockAlerts,body.locked #expKpis,body.locked #expAlerts,
-body.locked #peHero,body.locked #peBarsBox,body.locked #peAlerts,body.locked #prodKpis,body.locked #prodAlerts,
-body.locked #stockBody td.calc,body.locked #prodBody td.calc,
-body.locked #p2 .box thead th:nth-child(n+7):nth-child(-n+10),
-body.locked #p5 .box:first-of-type thead th:nth-child(n+8):nth-child(-n+10){display:none!important}
+body.locked #swotOut{display:none!important}
 .rv .play{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:var(--bg)}
 .rv .play>summary{cursor:pointer;list-style:none;padding:12px 14px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
 .rv .play>summary::-webkit-details-marker{display:none}
@@ -275,7 +271,7 @@ body.locked #p5 .box:first-of-type thead th:nth-child(n+8):nth-child(-n+10){disp
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 7</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 8</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -307,7 +303,7 @@ body.locked #p5 .box:first-of-type thead th:nth-child(n+8):nth-child(-n+10){disp
   <span class="pill">Diagnóstico de vendas</span>
   <div class="rule"></div>
   <h1>Quanto o seu negócio precisa <em>vender</em> para dar lucro?</h1>
-  <p>Preencha etapa por etapa: análise SWOT/FOFA, estoque, despesas, meta de vendas e nova produção. Depois da revisão da consultora, cada etapa mostra as análises e soluções, e o relatório final junta tudo num plano de ação.</p>
+  <p>Preencha etapa por etapa: análise SWOT/FOFA, estoque, despesas, meta de vendas e nova produção. Cada etapa mostra os seus números na hora. As soluções da análise SWOT/FOFA e o relatório final com o plano de ação vêm com a revisão da consultora.</p>
 </div></section>
 <div class="wrap">
   <div class="box adminp" id="adminPanel" hidden>
@@ -365,7 +361,7 @@ body.locked #p5 .box:first-of-type thead th:nth-child(n+8):nth-child(-n+10){disp
   <!-- 1 SWOT -->
   <section class="panel on" id="p1">
     <h2>Análise SWOT / FOFA</h2>
-    <p class="sub">Forças, Oportunidades, Fraquezas e Ameaças. Marque o que se aplica ao negócio. Se faltar algo, escreva em “Adicionar”. As soluções e estratégias aparecem logo abaixo.</p>
+    <p class="sub">Forças, Oportunidades, Fraquezas e Ameaças. Marque o que se aplica ao negócio. Se faltar algo, escreva em “Adicionar”.</p>
     <div class="grid2" id="swotGrid"></div>
     <div class="box out" id="swotOut"></div>
   </section>
@@ -940,7 +936,7 @@ try{
 }catch(e){sb=null;sbErr='lib'}
 
 $('authLogo').src=document.querySelector('.brandbar img').src;
-document.querySelectorAll('section.panel:not(#p6)').forEach(sec=>sec.insertAdjacentHTML('beforeend','<div class="wait">Preencha os dados desta etapa. As análises e soluções aparecem aqui depois que a Elaine revisar o seu diagnóstico.</div>'));
+$('p1').insertAdjacentHTML('beforeend','<div class="wait">Marque os pontos que se aplicam ao seu negócio. As soluções e estratégias para cada um deles serão apresentadas pela Elaine na revisão do seu diagnóstico.</div>');
 function view(v){['vLogin','vForgot','vNewPass'].forEach(id=>$(id).hidden=id!==v);const f=$(v).querySelector('input');if(f)setTimeout(()=>f.focus(),50)}
 function msg(id,t,ok){$(id).textContent=t||'';$(id).className='msg '+(ok?'ok':'err')}
 function fmtDate(s){if(!s)return '—';const d=new Date(s);return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
