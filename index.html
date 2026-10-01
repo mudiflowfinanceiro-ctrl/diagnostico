@@ -271,7 +271,7 @@ body.locked #swotOut{display:none!important}
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 8</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 9</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -922,6 +922,7 @@ $('clientName').oninput=e=>{S.client=e.target.value;save()};
 // >>> Cole aqui os dados do projeto (Supabase > Project Settings > API)
 const SUPABASE_URL = 'https://ddhiolofqqfxkhynpgte.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_OacroinHtlVNsW-0JKakAw_MsmZXNQ9';
+const TOOL_URL = 'https://mudiflowfinanceiro-ctrl.github.io/diagnostico/';   // endereço oficial da ferramenta
 // <<<
 
 const STATUS={rascunho:'Em preenchimento',enviado:'Aguardando revisão',aprovado:'Relatório liberado'};
@@ -1014,7 +1015,7 @@ $('adminBody').onclick=async e=>{
 };
 
 /* ---------- Criar, trocar senha e excluir clientes ---------- */
-const TOOL_URL=location.origin+location.pathname;
+
 function genPass(){
   const r=n=>{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n};
   const L='abcdefghjkmnpqrstuvwxyz',D='23456789';
@@ -1382,7 +1383,7 @@ $('fLogin').onsubmit=async e=>{
 };
 $('fForgot').onsubmit=async e=>{
   e.preventDefault();const btn=e.submitter;btn.disabled=true;
-  const {error}=await sb.auth.resetPasswordForEmail($('fEmail').value.trim(),{redirectTo:location.origin+location.pathname});
+  const {error}=await sb.auth.resetPasswordForEmail($('fEmail').value.trim(),{redirectTo:TOOL_URL});
   btn.disabled=false;
   if(error)msg('fMsg','Não foi possível enviar agora. Se continuar, fale com a Elaine pelo WhatsApp.');
   else msg('fMsg','Pronto. Se o e-mail estiver cadastrado, o link chega em alguns minutos. Confira também o spam.',true);
