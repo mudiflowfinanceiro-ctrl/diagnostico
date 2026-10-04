@@ -283,6 +283,7 @@ body.locked #swotOut,body.locked #stockAlerts,body.locked #expAlerts,body.locked
 .acplano li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.88rem}
 table.cmp th small{font-weight:400}
 .mods{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.mods[hidden]{display:none}
 .mods button{background:var(--surface);color:var(--brand);border:1.5px solid var(--line);padding:9px 18px;font-size:.86rem}
 .mods button:hover{border-color:var(--accent);background:var(--surface)}
 .mods button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
@@ -296,6 +297,7 @@ body:not([data-mod="diag"]) #reviewBox,body:not([data-mod="diag"]) #devForm,body
 body:not([data-mod="acomp"]) #acomp{display:none!important}
 body:not([data-mod="calc"]) #calcMod{display:none!important}
 body.nodiag .client{display:none!important}
+body[data-mod="none"] .hero p{display:none}
 body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!important}
 .calcmod{margin-top:22px}
 .calcmod h2{font-family:var(--serif);color:var(--brand);font-size:1.5rem;margin:0 0 6px}
@@ -348,7 +350,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 18</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 19</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -1876,7 +1878,7 @@ function paintMods(){
   $('modNav').hidden=!adm&&vis.length<2;
   document.body.classList.toggle('nodiag',!adm&&!on.includes('diagnostico'));
   const cur=document.body.dataset.mod, curOk=vis.some(m=>m[2]===cur);
-  setMod(curOk?cur:(vis[0]?vis[0][2]:'diag'));
+  setMod(curOk?cur:(vis[0]?vis[0][2]:'none'));
   if(!adm&&!vis.length){$('modNav').hidden=false;$('modNav').innerHTML='<p class="sub" style="margin:0">Nenhuma ferramenta liberada ainda. Fale com a Elaine.</p>'}
 }
 $('modNav').addEventListener('click',e=>{
