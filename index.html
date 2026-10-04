@@ -311,6 +311,14 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
 .pw .eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;padding:6px;color:var(--muted);border-radius:8px;line-height:0;cursor:pointer}
 .pw .eye:hover{color:var(--brand);background:var(--soft)}
 .pw .eye svg{width:20px;height:20px}
+.campin{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+.campin label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted)}
+.campin label[hidden]{display:none}
+.camptab td{vertical-align:top}
+.camptab .rec{display:inline-block;font-size:.8rem;line-height:1.35;padding:4px 10px;border-radius:10px;background:var(--soft)}
+.camptab .rec.good{background:rgba(47,148,104,.12);color:#1F6E4C}
+.camptab .rec.warn{background:rgba(208,138,22,.13);color:#8A5A0B}
+.camptab .rec.bad{background:rgba(208,68,55,.11);color:#A3322A}
 .lock{text-align:left}
 .lock h3{margin-bottom:6px}
 .lock p{color:var(--muted);margin:0 0 14px;max-width:60ch}
@@ -340,7 +348,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 17</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 18</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -1495,6 +1503,89 @@ function playText(x){
   const strip=h=>h.replace(/<\/div>/g,'\n').replace(/<small>/g,' ').replace(/<[^>]+>/g,'').replace(/\n\s*\n/g,'\n').trim();
   return `${x.t}\n\nPor que: ${x.why.replace(/<[^>]+>/g,'')}\n\nNúmeros:\n${strip(x.num).split('\n').map(l=>'- '+l.trim()).join('\n')}\n\nPasso a passo:\n${x.steps.map((s,i)=>`${i+1}. ${s}`).join('\n')}${x.msg?`\n\nMensagem sugerida:\n${x.msg}`:''}\n\nComo acompanhar: ${x.medir}`;
 }
+/* ---------- Planejador de campanha (só admin; usa os cálculos das etapas sem alterá-los) ---------- */
+const CAMP={nome:'Black Friday',outro:'',desc:'20'};
+const CAMPS=['Black Friday','Natal','Dia das Mães','Dia dos Pais','Dia dos Namorados','Dia do Consumidor','Dia das Crianças','Aniversário da loja','Outra'];
+const campNome=()=>CAMP.nome==='Outra'?(CAMP.outro||'Campanha'):CAMP.nome;
+function campData(){
+  const st=stockCalc(),k=peCalc(),V=totVar(),D=Math.min(Math.max(num(CAMP.desc),0),90)/100,sv=S.tipo==='servico';
+  const fl=x=>Math.max(0,Math.floor(x*100)/100);
+  const rows=st.valid.filter(r=>r.p>0).map(r=>{
+    const mcN=r.pl*(1-V)-r.c, mcC=r.p*(1-D)*(1-V)-r.c;
+    const dMax=(1-V)>0?1-r.c/((1-V)*r.p):NaN, dSaud=mcN>0?1-((r.c+0.5*mcN)/(1-V))/r.p:NaN;
+    const comp=mcC>0&&mcN>0?mcN/mcC-1:NaN, parado=!sv&&st.parados.includes(r), ruptura=!sv&&r.q>0&&st.ruptura.includes(r);
+    let rec,cls,part=true;
+    if(mcN<=0){rec='Fora da campanha: já vende no prejuízo';cls='bad';part=false}
+    else if(ruptura){rec='Fora da campanha: vai faltar, não precisa de desconto';cls='warn';part=false}
+    else if(parado){rec=`Desconto forte, até ${pct(fl(dMax*0.8))}: transforma estoque parado em caixa`;cls='good'}
+    else if(r.mg<0.3){rec=`Desconto leve, até ${pct(fl(dSaud))}: margem curta`;cls='warn'}
+    else{rec=`Desconto moderado, até ${pct(fl(Math.min(dSaud,D)))}`;cls='good'}
+    if(sv&&part)rec=rec.replace(/^Desconto (leve|moderado)/,'Desconto avulso $1')+'. Prefira pacote ou vale-presente';
+    if(part&&D>dMax)rec+=`. Atenção: com ${pct(D)} este item dá prejuízo`;
+    return Object.assign({},r,{mcN,mcC,dMax,dSaud,comp,rec,cls,part,parado});
+  });
+  const P=rows.filter(r=>r.part&&r.v>0&&r.mcC>0);
+  const sN=P.reduce((s,r)=>s+r.v*r.mcN,0), sC=P.reduce((s,r)=>s+r.v*r.mcC,0), vT=P.reduce((s,r)=>s+r.v,0);
+  const comp=sC>0?sN/sC-1:NaN, mcMed=vT>0?sC/vT:NaN;
+  const caixa=rows.filter(r=>r.parado&&r.part).reduce((s,r)=>s+r.q*r.p*(1-D),0);
+  let kit=null;
+  const a=rows.find(r=>r.parado&&r.part), b=rows.filter(r=>r.part&&!r.parado&&r.v>0).sort((x,y)=>y.v-x.v)[0];
+  if(a&&b){const cheio=a.p+b.p,custo=a.c+b.c,dK=1-custo/((1-V)*cheio);kit={a,b,cheio,preco:cheio*(1-Math.min(D,fl(dK*0.8))),dMax:dK,dSug:Math.min(D,fl(dK*0.8))}}
+  let pacote=null;
+  if(sv){const s=rows.filter(r=>r.part).sort((x,y)=>y.v-x.v)[0];
+    if(s){const pr=3*s.p*(1-D),mc=pr*(1-V)-3*s.c;pacote={s,preco:pr,mc,ok:mc>0}}}
+  const extraU=isFinite(comp)?vT*comp:NaN, agenda=sv&&k.cap>0&&isFinite(extraU)&&(st.vendasU+extraU)>k.cap;
+  const freteMin=k.pl>0?Math.ceil(k.pl*1.5/10)*10:NaN;
+  return {rows,D,comp,mcMed,caixa,kit,pacote,sv,agenda,freteMin,cap:k.cap,vendasU:st.vendasU,extraU};
+}
+function campIdeias(c){
+  return c.sv?[
+    'Vale-presente em pré-venda: o cliente compra agora com desconto e usa em dezembro. Traz caixa sem lotar a agenda no mesmo dia.',
+    c.pacote?`Pacote de 3 sessões de ${c.pacote.s.nome} por ${brl(c.pacote.preco)}${c.pacote.ok?'':' (atenção: com esse desconto o pacote não cobre o custo)'}.`:'Pacotes de sessões com desconto progressivo.',
+    'Abrir horários extras na semana da campanha, em vez de dar desconto em horários que já lotam.',
+    'Condição especial para clientes que voltam, combinando com cashback.'
+  ]:[
+    c.kit?`Kit "${c.kit.b.nome} + ${c.kit.a.nome}" por ${brl(c.kit.preco)} (os dois separados custam ${brl(c.kit.cheio)}): usa a procura de um item que vende bem para girar o parado.`:'Kits juntando um item de giro com um item parado.',
+    isFinite(c.freteMin)?`Frete grátis ou brinde para compras acima de ${brl(c.freteMin)} (cerca de uma vez e meia o ticket médio), para aumentar o valor de cada venda.`:'Frete grátis ou brinde acima de um valor mínimo de compra.',
+    'Lista VIP: avisar clientes antigos um dia antes, pelo WhatsApp, com acesso antecipado.',
+    'Cashback para a próxima compra em vez de desconto maior: o cliente volta em dezembro.'
+  ];
+}
+function renderCampOut(){
+  const out=$('campOut');if(!out)return;
+  const c=campData();
+  if(!c.rows.length){out.innerHTML='<p style="margin:0">Preencha os produtos ou serviços na etapa 2 para planejar a campanha.</p>';return}
+  const box=(v,l)=>`<div><b>${v}</b><small>${l}</small></div>`;
+  out.innerHTML=`<div class="num">
+      ${isFinite(c.comp)?box('+'+pct(c.comp),`de vendas nos itens da campanha para lucrar o mesmo que sem desconto`):''}
+      ${isFinite(c.mcMed)&&c.mcMed>0?box(int(1000/c.mcMed)+' vendas','extras pagam cada R$ 1.000 em anúncio'):''}
+      ${c.caixa>0?box(brl(c.caixa),'em caixa se vender todo o estoque parado com o desconto'):''}
+    </div>
+    ${c.agenda?`<div class="alert warn" style="margin-top:10px"><b>A agenda não comporta</b>Para compensar o desconto seriam cerca de ${int(c.extraU)} atendimentos a mais, e a capacidade é de ${int(c.cap)} por mês. Prefira pacotes e vale-presente para usar depois.</div>`:''}
+    <h5>${c.sv?'Serviço por serviço':'Produto por produto'}</h5>
+    <div class="tablewrap"><table class="camptab"><thead><tr><th>${c.sv?'Serviço':'Produto'}</th><th>Recomendação</th><th>Desconto máximo sem prejuízo</th><th>Sobra por venda: normal → com ${pct(c.D)}</th><th>Vendas a mais para compensar</th></tr></thead><tbody>
+    ${c.rows.map(r=>`<tr><td><b>${esc(r.nome)}</b></td><td><span class="rec ${r.cls}">${r.rec}</span></td><td class="calc">${isFinite(r.dMax)&&r.dMax>0?pct(r.dMax):'—'}</td><td class="calc">${brl(r.mcN)} → <span style="color:${r.mcC<0?'var(--bad)':'inherit'}">${brl(r.mcC)}</span></td><td class="calc">${r.part?(isFinite(r.comp)?'+'+pct(r.comp):'não compensa'):'—'}</td></tr>`).join('')}
+    </tbody></table></div>
+    <h5>Ideias para ${esc(campNome())}</h5><ol class="steps">${campIdeias(c).map(t=>`<li>${esc(t)}</li>`).join('')}</ol>
+    <div class="acrow"><button class="ghost" id="campCopy">Copiar plano da campanha</button><button class="ghost" id="campAdd">${(S.plano||[]).some(p=>p.t.startsWith(campNome()+':'))?'Já está no plano':'Adicionar ao plano do cliente'}</button></div>`;
+}
+function campText(){
+  const c=campData(),nome=S.client||(CUR&&CUR.empresa)||'';
+  return `Plano de ${campNome()}${nome?' para '+nome:''}\nDesconto de referência: ${pct(c.D)}\n\n`+
+    (isFinite(c.comp)?`Para lucrar o mesmo que sem desconto, as vendas dos itens da campanha precisam crescer ${pct(c.comp)}.\n`:'')+
+    (c.caixa>0?`Vendendo todo o estoque parado com o desconto, entram ${brl(c.caixa)} em caixa.\n`:'')+
+    `\n${c.sv?'Serviços':'Produtos'}:\n`+c.rows.map(r=>`- ${r.nome}: ${r.rec}`).join('\n')+
+    `\n\nIdeias:\n`+campIdeias(c).map((t,i)=>`${i+1}. ${t}`).join('\n');
+}
+function campSection(){
+  return `<h4>Planejador de campanha</h4><details class="play"><summary><b>Planejar uma campanha (ex.: Black Friday)</b><span>Ver o plano</span></summary><div class="pb">
+    <p style="margin:0">Escolha a data e o desconto que o cliente pensa em dar. O plano mostra item por item onde o desconto vale a pena e onde vira prejuízo.</p>
+    <div class="campin"><label>Campanha<select id="campNomeSel">${CAMPS.map(n=>`<option ${n===CAMP.nome?'selected':''}>${n}</option>`).join('')}</select></label>
+      <label id="campOutroW" ${CAMP.nome==='Outra'?'':'hidden'}>Nome da campanha<input id="campOutro" value="${esc(CAMP.outro)}"></label>
+      <label>Desconto pretendido (%)<input id="campDesc" inputmode="decimal" value="${esc(CAMP.desc)}"></label></div>
+    <div id="campOut"></div></div></details>`;
+}
+
 function renderReview(){
   const box=$('reviewBody');if(!box||ROLE!=='admin'||!CUR)return;
   const abertos=[...box.querySelectorAll('details.play[open] summary b')].map(b=>b.textContent);
@@ -1511,11 +1602,21 @@ function renderReview(){
       ${x.msg?`<h5>Mensagem sugerida para os clientes dele</h5><blockquote>${esc(x.msg)}</blockquote>`:''}
       <h5>Como acompanhar</h5><p style="margin:0">${x.medir}</p>
       <div class="acrow"><button class="ghost" data-play="${i}">Copiar plano</button><button class="ghost" data-addplan="${i}">${(S.plano||[]).some(p=>p.t===x.t)?'Já está no plano':'Adicionar ao plano do cliente'}</button></div></div></details>`).join('')}`:''})()}
+    ${campSection()}
     ${d.miss.length?`<h4>Dados para pedir ao cliente</h4><ul class="miss">${d.miss.map(m=>`<li>${m[0]}</li>`).join('')}</ul>`:''}
     <div class="actions"><button class="ghost" id="revCopy">Copiar resumo</button></div>`;
+  renderCampOut();
   box.querySelectorAll('details.play').forEach(el=>{if(abertos.includes(el.querySelector('summary b').textContent))el.open=true});
 }
+$('reviewBody').addEventListener('input',e=>{
+  const id=e.target.id;
+  if(id==='campNomeSel'){CAMP.nome=e.target.value;$('campOutroW').hidden=CAMP.nome!=='Outra';renderCampOut()}
+  else if(id==='campOutro'){CAMP.outro=e.target.value;renderCampOut()}
+  else if(id==='campDesc'){CAMP.desc=e.target.value;renderCampOut()}
+});
 $('reviewBody').addEventListener('click',async e=>{
+  if(e.target.id==='campCopy'){try{await navigator.clipboard.writeText(campText());e.target.textContent='Copiado'}catch(_){e.target.textContent='Não foi possível copiar'}setTimeout(()=>{e.target.textContent='Copiar plano da campanha'},2000);return}
+  if(e.target.id==='campAdd'){const t=`${campNome()}: campanha com até ${pct(Math.min(Math.max(num(CAMP.desc),0),90)/100)} de desconto nos itens selecionados`;S.plano=S.plano||[];if(!S.plano.some(p=>p.t.startsWith(campNome()+':'))){S.plano.push({t});save()}e.target.textContent='Já está no plano';renderAcomp();return}
   const g=e.target.closest('[data-go]');if(g){go(+g.dataset.go);setTimeout(()=>document.querySelector('nav.steps').scrollIntoView({behavior:'smooth',block:'start'}),60);return}
   const ap=e.target.closest('[data-addplan]');
   if(ap){const x=(window.__plays||[])[+ap.dataset.addplan];if(!x)return;S.plano=S.plano||[];if(!S.plano.some(p=>p.t===x.t)){S.plano.push({t:x.t});save()}ap.textContent='Já está no plano';renderAcomp();return}
