@@ -56,6 +56,8 @@ p.sub{color:var(--muted);margin:0 0 18px;max-width:70ch}
 .client{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:-34px;position:relative;box-shadow:0 10px 30px -18px rgba(46,42,122,.45)}
 .client label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted)}
 .client input,.client select{min-width:200px}
+.client #tipoSel{min-width:130px}
+.client label[hidden]{display:none}
 
 input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%}
 input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
@@ -304,6 +306,11 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
 .mctable tr.sub td{background:var(--soft)}
 .mcvar.better{color:var(--good)}.mcvar.worse{color:var(--bad)}.mcvar.neutral{color:var(--muted)}
 .mchero{margin-top:14px}
+.pw{position:relative;display:block}
+.pw input{width:100%;padding-right:46px}
+.pw .eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;padding:6px;color:var(--muted);border-radius:8px;line-height:0;cursor:pointer}
+.pw .eye:hover{color:var(--brand);background:var(--soft)}
+.pw .eye svg{width:20px;height:20px}
 .lock{text-align:left}
 .lock h3{margin-bottom:6px}
 .lock p{color:var(--muted);margin:0 0 14px;max-width:60ch}
@@ -333,7 +340,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 15</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 17</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -381,6 +388,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
       <div class="fields">
         <label>Empresa<input id="ncEmpresa" placeholder="Ex.: Loja da Ana" required></label>
         <label>E-mail do cliente<input id="ncEmail" type="email" placeholder="cliente@email.com" required></label>
+        <label>Ramo de atuação<select id="ncRamo"><option value="">Escolha</option><option>Confecção e moda</option><option>Loja e varejo</option><option>E-commerce</option><option>Alimentação</option><option>Beleza e estética</option><option>Saúde e clínicas</option><option>Serviços</option><option>Outro</option></select></label>
         <label>Plano<select id="ncPlano"><option value="0">Diagnóstico</option><option value="1">Diagnóstico + Acompanhamento</option><option value="2">Só calculadora</option></select></label>
         <label>Senha provisória<span class="passrow"><input id="ncSenha" minlength="8" required><button type="button" class="ghost" id="ncGen">Gerar outra</button></span></label>
       </div>
@@ -399,6 +407,9 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
   </div>
   <div class="client">
     <label>Cliente / empresa<input id="clientName" placeholder="Ex.: Loja da Ana"></label>
+    <label>Ramo de atuação<select id="ramoSel"><option value="">Escolha</option><option>Confecção e moda</option><option>Loja e varejo</option><option>E-commerce</option><option>Alimentação</option><option>Beleza e estética</option><option>Saúde e clínicas</option><option>Serviços</option><option>Outro</option></select></label>
+    <label id="ramoOutroWrap" hidden>Qual ramo?<input id="ramoOutro" placeholder="Ex.: pet shop"></label>
+    <label>Trabalha com<select id="tipoSel"><option value="produto">Produtos</option><option value="servico">Serviços</option></select></label>
     <div class="state">
       <span class="badge" id="stBadge"></span>
       <span id="saveMsg" aria-live="polite"></span>
@@ -590,7 +601,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
   <section class="panel" id="p6">
     <div class="noprint" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center">
       <h2>Relatório do diagnóstico</h2>
-      <button id="btnPrint">Imprimir ou salvar em PDF</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="ghost noprint" id="btnReturn2" hidden>Devolver para ajustes</button><button class="noprint" id="btnApprove2" hidden>Aprovar relatório</button><button id="btnPrint">Imprimir ou salvar em PDF</button></div>
     </div>
     <div class="box lock noprint" id="reportLock" hidden>
       <h3 id="lockTitle"></h3>
@@ -1052,7 +1063,7 @@ document.querySelectorAll('nav.steps button').forEach(b=>b.onclick=()=>go(+b.dat
 $('prev').onclick=()=>go(cur-1);$('next').onclick=()=>go(cur+1);
 
 /* ---------- Cliente ---------- */
-function renderAll(){$('clientName').value=S.client;renderSwot();renderVars();renderPEFields();renderFix();renderStock();renderProd();fillSaved();if(cur===6){renderReport();addReportNotes()}paintLock()}
+function renderAll(){$('clientName').value=S.client;paintRamo();renderSwot();renderVars();renderPEFields();renderFix();renderStock();renderProd();fillSaved();if(cur===6){renderReport();addReportNotes()}paintLock();applyTipo()}
 $('clientName').oninput=e=>{S.client=e.target.value;save()};
 
 /* ---------- Acesso online ---------- */
@@ -1097,6 +1108,7 @@ function paintStatus(){
   $('btnSend').hidden=adm||st!=='rascunho';
   $('btnApprove').hidden=!adm||st==='aprovado';
   $('btnReturn').hidden=!adm||st==='rascunho';
+  $('btnApprove2').hidden=$('btnApprove').hidden;$('btnReturn2').hidden=$('btnReturn').hidden;
   const nota=S.revisao&&S.revisao.motivo;
   const show=nota&&(adm?st!=='aprovado':st==='rascunho');
   $('devNote').hidden=!show;
@@ -1143,6 +1155,8 @@ $('btnReturn').onclick=()=>{
   $('devText').value=S.revisao&&S.revisao.motivo?S.revisao.motivo:(miss.length?'Preciso que você complete ou confira:\n'+miss.join('\n'):'');
   $('devForm').hidden=false;$('devForm').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>$('devText').focus(),300);
 };
+$('btnApprove2').onclick=()=>$('btnApprove').click();
+$('btnReturn2').onclick=()=>$('btnReturn').click();
 $('devCancel').onclick=()=>{$('devForm').hidden=true};
 $('devOk').onclick=async()=>{
   const t=$('devText').value.trim();
@@ -1163,10 +1177,10 @@ $('devOk').onclick=async()=>{
 function renderAdmin(){
   const q=($('adminSearch').value||'').toLowerCase().trim();
   const order={enviado:0,rascunho:1,aprovado:2};
-  const rows=LIST.filter(r=>!q||(r.empresa||'').toLowerCase().includes(q)||(r.email||'').toLowerCase().includes(q))
+  const rows=LIST.filter(r=>!q||(r.empresa||'').toLowerCase().includes(q)||(r.email||'').toLowerCase().includes(q)||ramoOf(r).toLowerCase().includes(q))
     .sort((a,b)=>(order[a.status]-order[b.status])||String(b.atualizado_em).localeCompare(String(a.atualizado_em)));
   $('adminBody').innerHTML=rows.length?rows.map(r=>`<tr class="${CUR&&CUR.user_id===r.user_id?'cur':''}">
-      <td><b>${esc(r.empresa||'Sem nome ainda')}</b><small>${esc(r.email||'')}</small>${MOD_ON?`<small style="color:var(--accent-ink)">${modsOf(r).map(modLabel).join(', ')||'Nenhum módulo'}</small>`:''}</td>
+      <td><b>${esc(r.empresa||'Sem nome ainda')}</b><small>${esc(r.email||'')}${ramoOf(r)?' · '+esc(ramoOf(r)):''}</small>${MOD_ON?`<small style="color:var(--accent-ink)">${modsOf(r).map(modLabel).join(', ')||'Nenhum módulo'}</small>`:''}</td>
       <td><span class="badge ${r.status}">${STATUS[r.status]}</span></td>
       <td>${acompCell(r)}</td>
       <td>${fmtDate(r.atualizado_em)}</td>
@@ -1231,7 +1245,7 @@ $('newClient').onsubmit=async e=>{
   const r=await adminCall({acao:'criar',empresa,email,senha});
   $('ncBtn').disabled=false;$('ncBtn').textContent='Criar acesso';
   if(r.erro){$('ncMsg').textContent=r.erro;return}
-  if(MOD_ON&&r.user_id)await sb.from('diagnosticos').update({modulos:PLANOS[+$('ncPlano').value][1]}).eq('user_id',r.user_id);
+  if(r.user_id){const ramo=$('ncRamo').value,upd={};if(MOD_ON)upd.modulos=PLANOS[+$('ncPlano').value][1];if(ramo&&ramo!=='Outro')upd.dados={client:empresa,ramo,tipo:tipoDoRamo(ramo)};if(Object.keys(upd).length)await sb.from('diagnosticos').update(upd).eq('user_id',r.user_id)}
   await reloadList();
   showCred(`Acesso de ${empresa} criado. Envie esta mensagem para o cliente:`,email,senha,false);
 };
@@ -1742,7 +1756,8 @@ function calcMcu(){
 const MODS=[['diagnostico','Diagnóstico de Vendas','diag'],['acompanhamento','Acompanhamento mensal','acomp'],['calc_mcu','Calculadora de margem','calc']];
 const PLANOS=[['Diagnóstico',['diagnostico','calc_mcu']],['Diagnóstico + Acompanhamento',['diagnostico','acompanhamento','calc_mcu']],['Só calculadora',['calc_mcu']]];
 let MOD_ON=true;   // fica falso se o script 5 ainda não foi rodado
-const COLS=()=>'user_id,email,empresa,status,enviado_em,aprovado_em,atualizado_em'+(MOD_ON?',modulos':'');
+let RAMO_ON=true;
+const COLS=()=>'user_id,email,empresa,status,enviado_em,aprovado_em,atualizado_em'+(MOD_ON?',modulos':'')+(RAMO_ON?',ramo:dados->>ramo':'');
 const modsOf=r=>!MOD_ON?MODS.map(m=>m[0]):(Array.isArray(r&&r.modulos)?r.modulos:['diagnostico']);
 const modLabel=k=>(MODS.find(m=>m[0]===k)||[k,k])[1];
 function setMod(code){
@@ -1792,6 +1807,53 @@ $('modBox').addEventListener('click',async e=>{
   }
 });
 
+/* ---------- Ramo de atuação e linguagem para serviços (só textos; os cálculos não mudam) ---------- */
+const RAMOS={'Confecção e moda':'produto','Loja e varejo':'produto','E-commerce':'produto','Alimentação':'produto','Beleza e estética':'servico','Saúde e clínicas':'servico','Serviços':'servico'};
+const tipoDoRamo=r=>RAMOS[r]||'produto';
+const ramoOf=r=>(r&&(r.ramo||(r.dados&&r.dados.ramo)))||'';
+function paintRamo(){
+  const r=S.ramo||'', conhecido=r===''||RAMOS[r]!==undefined;
+  $('ramoSel').value=conhecido?r:'Outro';
+  $('ramoOutroWrap').hidden=conhecido;$('ramoOutro').value=conhecido?'':r;
+  $('tipoSel').value=S.tipo==='servico'?'servico':'produto';
+}
+$('ramoSel').onchange=()=>{
+  const v=$('ramoSel').value;
+  if(v==='Outro'){$('ramoOutroWrap').hidden=false;S.ramo=$('ramoOutro').value.trim();setTimeout(()=>$('ramoOutro').focus(),50)}
+  else{$('ramoOutroWrap').hidden=true;S.ramo=v;if(v){S.tipo=tipoDoRamo(v);$('tipoSel').value=S.tipo}}
+  applyTipo();save();
+};
+$('ramoOutro').oninput=()=>{S.ramo=$('ramoOutro').value.trim();save()};
+$('tipoSel').onchange=()=>{S.tipo=$('tipoSel').value;applyTipo();save()};
+const TXT={
+  produto:{nav:'Estoque e custos',h2:'Estoque e custos',sub:'Liste os produtos com quantidade, custo de compra/produção, preço de venda, desconto médio concedido e quanto vende por mês. A ferramenta calcula margem, cobertura e a curva ABC.',
+    th:['Produto','Qtd em estoque','Custo unit. (R$)','Preço venda (R$)','Desconto (%)','Vendas/mês (un.)'],add:'Adicionar produto',ph:'Nome do produto',cap:'Capacidade máxima (un./mês)'},
+  servico:{nav:'Serviços e custos',h2:'Serviços e custos',sub:'Liste os serviços ou procedimentos com o custo de material de cada atendimento, o preço cobrado, o desconto médio e quantos atendimentos faz por mês. Se também vende produtos, inclua-os com a quantidade em estoque.',
+    th:['Serviço ou procedimento','Qtd em estoque (se vender produtos)','Custo de material por atendimento (R$)','Preço do serviço (R$)','Desconto (%)','Atendimentos por mês'],add:'Adicionar serviço',ph:'Nome do serviço',cap:'Capacidade da agenda (atendimentos/mês)'}
+};
+function applyTipo(){
+  const t=TXT[S.tipo==='servico'?'servico':'produto'];
+  const nb=document.querySelector('nav.steps button[data-p="2"]');if(nb)nb.innerHTML='<span>2</span>'+t.nav;
+  $('p2').querySelector('h2').textContent=t.h2;$('p2').querySelector('p.sub').textContent=t.sub;
+  $('p2').querySelectorAll('thead th').forEach((th,i)=>{if(i<6)th.textContent=t.th[i]});
+  $('addStock').textContent=t.add;
+  $('stockBody').querySelectorAll('input[data-f="nome"]').forEach(i=>i.placeholder=t.ph);
+  const cap=$('peFields').querySelector('[data-p="cap"]');if(cap&&cap.parentNode.firstChild.nodeType===3)cap.parentNode.firstChild.textContent=t.cap;
+}
+new MutationObserver(()=>{const t=TXT[S.tipo==='servico'?'servico':'produto'];$('stockBody').querySelectorAll('input[data-f="nome"]').forEach(i=>{if(i.placeholder!==t.ph)i.placeholder=t.ph})}).observe($('stockBody'),{childList:true});
+
+/* ---------- Mostrar ou esconder a senha ---------- */
+(function(){
+  const olho='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const fechado='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.7 0 3.2-.5 4.5-1.2"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+  document.querySelectorAll('#auth input[type=password]').forEach(inp=>{
+    const w=document.createElement('span');w.className='pw';inp.parentNode.insertBefore(w,inp);w.appendChild(inp);
+    const b=document.createElement('button');b.type='button';b.className='eye';b.innerHTML=olho;b.setAttribute('aria-label','Mostrar senha');
+    b.onclick=()=>{const ver=inp.type==='password';inp.type=ver?'text':'password';b.innerHTML=ver?fechado:olho;b.setAttribute('aria-label',ver?'Esconder senha':'Mostrar senha');inp.focus()};
+    w.appendChild(b);
+  });
+})();
+
 /* ---------- Sessão ---------- */
 async function startSession(session){
   const email=session.user.email||'';
@@ -1799,6 +1861,7 @@ async function startSession(session){
   const {data:adm}=await sb.rpc('is_admin');
   ROLE=adm?'admin':'cliente';
   {const t=await sb.from('diagnosticos').select('modulos').limit(1);MOD_ON=!t.error;}
+  {const t=await sb.from('diagnosticos').select('ramo:dados->>ramo').limit(1);RAMO_ON=!t.error;}
   document.body.classList.add('in');
   $('adminPanel').hidden=ROLE!=='admin';
   if(ROLE==='admin'){
