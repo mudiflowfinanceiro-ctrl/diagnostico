@@ -284,7 +284,7 @@ table.cmp th small{font-weight:400}
 .modbox{margin-top:12px}.modbox .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .modchecks{display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:.9rem}
 body:not([data-mod="diag"]) nav.steps,body:not([data-mod="diag"]) section.panel,body:not([data-mod="diag"]) .navbtns:not(.calcmod .navbtns),
-body:not([data-mod="diag"]) #reviewBox,body:not([data-mod="diag"]) #devForm,body:not([data-mod="diag"]) #devNote,body:not([data-mod="diag"]) .client .state{display:none!important}
+body:not([data-mod="diag"]) #reviewBox,body:not([data-mod="diag"]) #prazoNote,body:not([data-mod="diag"]) #devForm,body:not([data-mod="diag"]) #devNote,body:not([data-mod="diag"]) .client .state{display:none!important}
 body:not([data-mod="acomp"]) #acomp{display:none!important}
 body:not([data-mod="calc"]) #calcMod{display:none!important}
 body.nodiag .client{display:none!important}
@@ -317,6 +317,16 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
 .plhint{font-size:.8rem;margin:8px 0 0;text-align:right;max-width:none}
 #plBox{margin-top:12px}
 .plbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.prazonote{margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--brand-2);border-radius:12px;padding:12px 16px;font-size:.9rem}
+.prazonote[hidden]{display:none}
+.prazonote.warn{border-left-color:var(--warn);background:rgba(208,138,22,.08)}
+.prazonote.bad{border-left-color:var(--bad);background:rgba(208,68,55,.07)}
+.prazonote b{color:var(--brand)}
+.prazonote label{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:.8rem;color:var(--muted)}
+.prazonote input{min-width:0;width:auto;padding:6px 10px}
+.prazonote label[hidden]{display:none}
+.prazo-mini{display:block;font-size:.74rem;color:var(--muted);margin-top:4px}
+.prazo-mini.bad{color:var(--bad);font-weight:600}
 .lock{text-align:left}
 .lock h3{margin-bottom:6px}
 .lock p{color:var(--muted);margin:0 0 14px;max-width:60ch}
@@ -346,7 +356,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 21</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 23</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -395,6 +405,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
         <label>Empresa<input id="ncEmpresa" placeholder="Ex.: Loja da Ana" required></label>
         <label>E-mail do cliente<input id="ncEmail" type="email" placeholder="cliente@email.com" required></label>
         <label>Ramo de atuação<select id="ncRamo"><option value="">Escolha</option><option>Confecção e moda</option><option>Loja e varejo</option><option>E-commerce</option><option>Alimentação</option><option>Beleza e estética</option><option>Saúde e clínicas</option><option>Serviços</option><option>Outro</option></select></label>
+        <label>Quantos produtos ou serviços?<select id="ncQtd"><option value="10">Até 50</option><option value="15">De 50 a 200</option><option value="20">Mais de 200</option></select><em id="ncQtdHint">Prazo de 10 dias</em></label>
         <label>Plano<select id="ncPlano"><option value="0">Diagnóstico</option><option value="1">Diagnóstico + Acompanhamento</option><option value="2">Só calculadora</option></select></label>
         <label>Senha provisória<span class="passrow"><input id="ncSenha" minlength="8" required><button type="button" class="ghost" id="ncGen">Gerar outra</button></span></label>
       </div>
@@ -424,6 +435,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
       <button class="ghost" id="btnReturn" hidden>Devolver para ajustes</button>
     </div>
   </div>
+  <div class="prazonote noprint" id="prazoNote" hidden><span id="prazoTxt"></span><label id="prazoEdit" hidden>Prazo para envio<input type="date" id="prazoInput"></label></div>
   <div class="box devform noprint" id="devForm" hidden>
     <h3>Devolver para ajustes</h3>
     <p>Escreva o que o cliente precisa corrigir ou completar. Ele vê esta mensagem em destaque ao entrar.</p>
@@ -1129,6 +1141,7 @@ function paintStatus(){
   $('btnApprove').hidden=!adm||st==='aprovado';
   $('btnReturn').hidden=!adm||st==='rascunho';
   $('btnApprove2').hidden=$('btnApprove').hidden;$('btnReturn2').hidden=$('btnReturn').hidden;
+  paintPrazo();
   const nota=S.revisao&&S.revisao.motivo;
   const show=nota&&(adm?st!=='aprovado':st==='rascunho');
   $('devNote').hidden=!show;
@@ -1201,7 +1214,7 @@ function renderAdmin(){
     .sort((a,b)=>(order[a.status]-order[b.status])||String(b.atualizado_em).localeCompare(String(a.atualizado_em)));
   $('adminBody').innerHTML=rows.length?rows.map(r=>`<tr class="${CUR&&CUR.user_id===r.user_id?'cur':''}">
       <td><b>${esc(r.empresa||'Sem nome ainda')}</b><small>${esc(r.email||'')}${ramoOf(r)?' · '+esc(ramoOf(r)):''}</small>${MOD_ON?`<small style="color:var(--accent-ink)">${modsOf(r).map(modLabel).join(', ')||'Nenhum módulo'}</small>`:''}</td>
-      <td><span class="badge ${r.status}">${STATUS[r.status]}</span></td>
+      <td><span class="badge ${r.status}">${STATUS[r.status]}</span>${prazoMini(r)}</td>
       <td>${acompCell(r)}</td>
       <td>${fmtDate(r.atualizado_em)}</td>
       <td class="acts"><button class="ghost" data-open="${r.user_id}">${CUR&&CUR.user_id===r.user_id?'Aberto':'Abrir'}</button><button class="ghost" data-pass="${r.user_id}">Nova senha</button><button class="ghost del" data-del="${r.user_id}">Excluir</button></td></tr>`).join('')
@@ -1210,6 +1223,7 @@ function renderAdmin(){
 $('adminSearch').oninput=renderAdmin;
 $('adminBody').onclick=async e=>{
   const lem=e.target.closest('[data-lembrar]')?.dataset.lembrar;if(lem)return lembreteCheckin(lem);
+  const lp=e.target.closest('[data-lprazo]')?.dataset.lprazo;if(lp)return lembretePrazo(lp);
   const pass=e.target.closest('[data-pass]')?.dataset.pass, del=e.target.closest('[data-del]')?.dataset.del;
   if(pass)return resetPass(pass);
   if(del)return delClient(del);
@@ -1255,6 +1269,7 @@ Ao entrar, clique em "Trocar senha" no topo da página e crie a sua senha.`;
 $('credCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('credText').textContent);$('credCopy').textContent='Copiada'}catch(e){const r=document.createRange();r.selectNodeContents($('credText'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);$('credCopy').textContent='Texto selecionado: use Ctrl+C'}};
 $('credClose').onclick=()=>{$('credBox').hidden=true};
 $('btnNewClient').onclick=()=>{$('credBox').hidden=true;$('newClient').hidden=false;$('ncEmpresa').value='';$('ncEmail').value='';$('ncSenha').value=genPass();$('ncMsg').textContent='';$('ncEmpresa').focus()};
+$('ncQtd').onchange=()=>{const v=+$('ncQtd').value;$('ncQtdHint').textContent=`Prazo de ${v} dias`+(v>10?', e a mensagem de acesso já explica a planilha':'')};
 $('ncGen').onclick=()=>{$('ncSenha').value=genPass()};
 $('ncCancel').onclick=()=>{$('newClient').hidden=true};
 $('newClient').onsubmit=async e=>{
@@ -1265,9 +1280,10 @@ $('newClient').onsubmit=async e=>{
   const r=await adminCall({acao:'criar',empresa,email,senha});
   $('ncBtn').disabled=false;$('ncBtn').textContent='Criar acesso';
   if(r.erro){$('ncMsg').textContent=r.erro;return}
-  if(r.user_id){const ramo=$('ncRamo').value,upd={};if(MOD_ON)upd.modulos=PLANOS[+$('ncPlano').value][1];if(ramo&&ramo!=='Outro')upd.dados={client:empresa,ramo,tipo:tipoDoRamo(ramo)};if(Object.keys(upd).length)await sb.from('diagnosticos').update(upd).eq('user_id',r.user_id)}
+  if(r.user_id){const ramo=$('ncRamo').value,upd={};if(PRAZO_ON){const d=new Date();d.setDate(d.getDate()+(+$('ncQtd').value));upd.prazo=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}if(MOD_ON)upd.modulos=PLANOS[+$('ncPlano').value][1];if(ramo&&ramo!=='Outro')upd.dados={client:empresa,ramo,tipo:tipoDoRamo(ramo)};if(Object.keys(upd).length)await sb.from('diagnosticos').update(upd).eq('user_id',r.user_id)}
   await reloadList();
   showCred(`Acesso de ${empresa} criado. Envie esta mensagem para o cliente:`,email,senha,false);
+  if(+$('ncQtd').value>10){const d=new Date();d.setDate(d.getDate()+(+$('ncQtd').value));const rm=$('ncRamo').value,tp=rm&&rm!=='Outro'?tipoDoRamo(rm):'',it=tp==='servico'?'serviços':tp==='produto'?'produtos':'produtos ou serviços';$('credText').textContent+=`\n\nComo você tem muitos ${it}, o seu prazo para enviar é até ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}. Uma dica: na etapa 2, use "Baixar planilha" para preencher tudo no Excel (ou colar o relatório do seu sistema) e depois "Importar planilha". `+(tp==='servico'?'Comece pelos serviços que você mais faz.':tp==='produto'?'Comece pelos produtos que mais vendem e pelos que estão parados.':'Comece pelos itens que mais vendem e pelos que estão parados.');const t=$('credText').textContent;$('credWa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener')}
 };
 async function resetPass(id){
   const c=LIST.find(r=>r.user_id===id);if(!c)return;
@@ -1870,7 +1886,8 @@ const MODS=[['diagnostico','Diagnóstico de Vendas','diag'],['acompanhamento','A
 const PLANOS=[['Diagnóstico',['diagnostico','calc_mcu']],['Diagnóstico + Acompanhamento',['diagnostico','acompanhamento','calc_mcu']],['Só calculadora',['calc_mcu']]];
 let MOD_ON=true;   // fica falso se o script 5 ainda não foi rodado
 let RAMO_ON=true;
-const COLS=()=>'user_id,email,empresa,status,enviado_em,aprovado_em,atualizado_em'+(MOD_ON?',modulos':'')+(RAMO_ON?',ramo:dados->>ramo':'');
+let PRAZO_ON=true;
+const COLS=()=>'user_id,email,empresa,status,enviado_em,aprovado_em,atualizado_em'+(MOD_ON?',modulos':'')+(RAMO_ON?',ramo:dados->>ramo':'')+(PRAZO_ON?',prazo':'');
 const modsOf=r=>!MOD_ON?MODS.map(m=>m[0]):(Array.isArray(r&&r.modulos)?r.modulos:['diagnostico']);
 const modLabel=k=>(MODS.find(m=>m[0]===k)||[k,k])[1];
 function setMod(code){
@@ -2030,6 +2047,45 @@ $('plBox').addEventListener('click',e=>{
   if(e.target.id==='plOk')$('plBox').hidden=true;
 });
 
+/* ---------- Prazo para enviar o diagnóstico ---------- */
+const fmtDia=d=>{const [y,m,dd]=String(d).split('-');return `${dd}/${m}`};
+function diasAte(d){if(!d)return null;const [y,m,dd]=String(d).split('-').map(Number),h=new Date();return Math.round((new Date(y,m-1,dd)-new Date(h.getFullYear(),h.getMonth(),h.getDate()))/86400000)}
+function paintPrazo(){
+  const box=$('prazoNote');if(!box)return;
+  const adm=ROLE==='admin',st=CUR&&CUR.status,pz=CUR&&CUR.prazo;
+  if(!PRAZO_ON||!CUR||st!=='rascunho'||(!pz&&!adm)){box.hidden=true;return}
+  box.hidden=false;$('prazoEdit').hidden=!adm;
+  if(adm)$('prazoInput').value=pz||'';
+  const n=diasAte(pz);box.className='prazonote noprint'+(n===null?'':n<0?' bad':n<=2?' warn':'');
+  let t;
+  if(!pz)t='Sem prazo definido. Escolha uma data ao lado.';
+  else if(n<0)t=adm?`<b>Prazo vencido em ${fmtDia(pz)}.</b> Vale mandar um lembrete.`:`<b>O prazo terminou em ${fmtDia(pz)}.</b> Envie para revisão assim que puder.`;
+  else if(n===0)t=`<b>O prazo para enviar é hoje (${fmtDia(pz)}).</b>`;
+  else t=`<b>Prazo para enviar: ${fmtDia(pz)}</b>, ${n===1?'falta 1 dia':`faltam ${n} dias`}.`;
+  $('prazoTxt').innerHTML=t;
+}
+$('prazoInput').onchange=async()=>{
+  const v=$('prazoInput').value||null;
+  const {error}=await sb.from('diagnosticos').update({prazo:v}).eq('user_id',CUR.user_id);
+  if(error){alert('Não foi possível salvar o prazo. Tente de novo.');return}
+  CUR.prazo=v;const i=LIST.findIndex(r=>r.user_id===CUR.user_id);if(i>-1)LIST[i].prazo=v;paintPrazo();renderAdmin();
+};
+function prazoMini(r){
+  if(!PRAZO_ON||r.status!=='rascunho'||!r.prazo)return '';
+  const n=diasAte(r.prazo);
+  return n<0?`<small class="prazo-mini bad">Prazo vencido em ${fmtDia(r.prazo)} <button class="go" data-lprazo="${r.user_id}">Lembrar</button></small>`
+            :`<small class="prazo-mini">Prazo: ${fmtDia(r.prazo)}${n<=2?` <button class="go" data-lprazo="${r.user_id}">Lembrar</button>`:''}</small>`;
+}
+function lembretePrazo(id){
+  const c=LIST.find(r=>r.user_id===id);if(!c)return;
+  const n=diasAte(c.prazo);
+  const msg=`Olá! Passando para lembrar do seu Diagnóstico de Vendas da Mudiflow: ${n<0?`o prazo para enviar era ${fmtDia(c.prazo)}`:`o prazo para enviar é ${fmtDia(c.prazo)}`}. Quando terminar de preencher, é só clicar em "Enviar para revisão" em ${TOOL_URL}. Se travou em alguma etapa, me chama que eu te ajudo!`;
+  $('credTitle').textContent=`Lembrete de prazo para ${c.empresa||c.email}:`;
+  $('credText').textContent=msg;$('credCopy').textContent='Copiar mensagem';
+  $('credWa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
+  $('newClient').hidden=true;$('credBox').hidden=false;$('adminPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 /* ---------- Mostrar ou esconder a senha ---------- */
 (function(){
   const olho='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -2050,6 +2106,7 @@ async function startSession(session){
   ROLE=adm?'admin':'cliente';
   {const t=await sb.from('diagnosticos').select('modulos').limit(1);MOD_ON=!t.error;}
   {const t=await sb.from('diagnosticos').select('ramo:dados->>ramo').limit(1);RAMO_ON=!t.error;}
+  {const t=await sb.from('diagnosticos').select('prazo').limit(1);PRAZO_ON=!t.error;}
   document.body.classList.add('in');
   $('adminPanel').hidden=ROLE!=='admin';
   if(ROLE==='admin'){
