@@ -327,6 +327,17 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
 .prazonote label[hidden]{display:none}
 .prazo-mini{display:block;font-size:.74rem;color:var(--muted);margin-top:4px}
 .prazo-mini.bad{color:var(--bad);font-weight:600}
+.finmod{margin-top:22px}
+.finmod h2{font-family:var(--serif);color:var(--brand);font-size:1.5rem;margin:0 0 6px}
+body:not([data-mod="fin"]) #finMod{display:none!important}
+.finta{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);margin-top:12px}
+.finta textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;resize:vertical}
+.finnote{margin:10px 0 0;font-size:.84rem}
+.finkpis{margin-top:4px}
+.fintab td.acts{white-space:nowrap;text-align:right}.fintab td.acts button{padding:6px 12px;font-size:.78rem;margin-left:4px}
+.finmini{display:block;font-size:.74rem;color:var(--accent-ink);margin-top:2px}.finmini.bad{color:var(--bad);font-weight:600}
+.fintot{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.84rem;color:var(--muted);margin:-2px 0 12px}.fintot b{color:var(--brand)}
+.mods button.fin{background:var(--soft)}
 .lock{text-align:left}
 .lock h3{margin-bottom:6px}
 .lock p{color:var(--muted);margin:0 0 14px;max-width:60ch}
@@ -356,7 +367,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 23</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 24</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -399,6 +410,7 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
         <button id="btnNewClient">Novo cliente</button>
       </div>
     </div>
+    <div id="finTot"></div>
     <form class="newc" id="newClient" hidden>
       <h4>Criar acesso para um cliente</h4>
       <div class="fields">
@@ -509,6 +521,11 @@ body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!im
       </div>
     </div>
     <div class="navbtns" style="justify-content:flex-end"><button class="ghost" id="mc_reset">Voltar aos valores de exemplo</button></div>
+  </section>
+  <section class="finmod noprint" id="finMod">
+    <h2>Financeiro</h2>
+    <p class="sub">O que foi combinado com esta cliente e os pagamentos. Só você vê esta área.</p>
+    <div id="finBody"></div>
   </section>
   <details class="review noprint" id="reviewBox" open hidden>
     <summary><div><h3>Resumo da revisão</h3><small>Só você vê. Atualiza sozinho conforme os números mudam.</small></div><span class="chev"></span></summary>
@@ -1130,7 +1147,7 @@ function loadRow(row){
   renderAll();paintStatus();setSaveMsg('');go(1);
   $('reviewBox').hidden=ROLE!=='admin';if(ROLE==='admin')renderReview();
   $('modBox').hidden=true;document.body.dataset.mod='diag';paintMods();
-  loadAcomp();
+  loadAcomp();loadFin();
 }
 function paintStatus(){
   if(!CUR)return;
@@ -1212,8 +1229,9 @@ function renderAdmin(){
   const order={enviado:0,rascunho:1,aprovado:2};
   const rows=LIST.filter(r=>!q||(r.empresa||'').toLowerCase().includes(q)||(r.email||'').toLowerCase().includes(q)||ramoOf(r).toLowerCase().includes(q))
     .sort((a,b)=>(order[a.status]-order[b.status])||String(b.atualizado_em).localeCompare(String(a.atualizado_em)));
+  if($('finTot'))$('finTot').innerHTML=finTotais();
   $('adminBody').innerHTML=rows.length?rows.map(r=>`<tr class="${CUR&&CUR.user_id===r.user_id?'cur':''}">
-      <td><b>${esc(r.empresa||'Sem nome ainda')}</b><small>${esc(r.email||'')}${ramoOf(r)?' · '+esc(ramoOf(r)):''}</small>${MOD_ON?`<small style="color:var(--accent-ink)">${modsOf(r).map(modLabel).join(', ')||'Nenhum módulo'}</small>`:''}</td>
+      <td><b>${esc(r.empresa||'Sem nome ainda')}</b><small>${esc(r.email||'')}${ramoOf(r)?' · '+esc(ramoOf(r)):''}</small>${MOD_ON?`<small style="color:var(--accent-ink)">${modsOf(r).map(modLabel).join(', ')||'Nenhum módulo'}</small>`:''}${finCell(r)}</td>
       <td><span class="badge ${r.status}">${STATUS[r.status]}</span>${prazoMini(r)}</td>
       <td>${acompCell(r)}</td>
       <td>${fmtDate(r.atualizado_em)}</td>
@@ -1901,10 +1919,10 @@ function paintMods(){
   const on=modsOf(CUR), adm=ROLE==='admin';
   const vis=MODS.filter(m=>adm||on.includes(m[0]));
   $('modNav').innerHTML=vis.map(m=>`<button type="button" data-mod="${m[2]}" class="${on.includes(m[0])?'':'off'}">${m[1]}${adm&&!on.includes(m[0])?' <small>(não liberado)</small>':''}</button>`).join('')
-    +(adm?`<button type="button" class="cfg" id="btnMods">Módulos e plano</button>`:'');
+    +(adm?`<button type="button" class="fin" data-mod="fin">Financeiro</button><button type="button" class="cfg" id="btnMods">Módulos e plano</button>`:'');
   $('modNav').hidden=!adm&&vis.length<2;
   document.body.classList.toggle('nodiag',!adm&&!on.includes('diagnostico'));
-  const cur=document.body.dataset.mod, curOk=vis.some(m=>m[2]===cur);
+  const cur=document.body.dataset.mod, curOk=vis.some(m=>m[2]===cur)||(adm&&cur==='fin');
   setMod(curOk?cur:(vis[0]?vis[0][2]:'none'));
   if(!adm&&!vis.length){$('modNav').hidden=false;$('modNav').innerHTML='<p class="sub" style="margin:0">Nenhuma ferramenta liberada ainda. Fale com a Elaine.</p>'}
 }
@@ -2086,6 +2104,111 @@ function lembretePrazo(id){
   $('newClient').hidden=true;$('credBox').hidden=false;$('adminPanel').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+/* ---------- Financeiro por cliente (só admin) ---------- */
+let FIN=null, FIN_ALL={}, FIN_ON=true, finT;
+const FIN_MODELOS=[['avulso','Diagnóstico avulso'],['diag_acomp','Diagnóstico + Acompanhamento'],['bonus','Acompanhamento com diagnóstico bônus'],['acomp','Só acompanhamento'],['permuta','Permuta (troca de serviço)']];
+const hojeISO=()=>{const h=new Date();return h.getFullYear()+'-'+String(h.getMonth()+1).padStart(2,'0')+'-'+String(h.getDate()).padStart(2,'0')};
+const fmtData=d=>{if(!d)return '—';const [y,m,dd]=String(d).split('-');return `${dd}/${m}/${y}`};
+function finNovo(){let pix='';try{pix=localStorage.getItem('mudiflow-pix')||''}catch(e){}
+  return {modelo:'diag_acomp',valorDiag:'500',valorMensal:'250',inicio:hojeISO(),meses:'3',diaVenc:'10',forma:'Pix',pix,permuta:'',obs:'',parcelas:[]}}
+function finSit(p){if(p.pago)return ['good','Pago em '+fmtData(p.pago).slice(0,5)];return (p.venc&&p.venc<hojeISO())?['bad','Atrasado']:['','Em aberto']}
+function finResumo(f){const r={rec:0,aberto:0,atras:0,nAtras:0};(f&&f.parcelas||[]).forEach(p=>{const v=num(p.valor);if(p.pago)r.rec+=v;else if(p.venc&&p.venc<hojeISO()){r.atras+=v;r.nAtras++}else r.aberto+=v});return r}
+async function loadFin(){
+  FIN=null;if(ROLE!=='admin'||!CUR||!FIN_ON)return renderFin();
+  const {data,error}=await sb.from('financeiro').select('dados').eq('user_id',CUR.user_id).maybeSingle();
+  if(error){FIN_ON=false;return renderFin()}
+  FIN=data&&data.dados&&data.dados.modelo?data.dados:null;renderFin();
+}
+function finSave(){clearTimeout(finT);finT=setTimeout(async()=>{
+  if(!CUR||!FIN)return;$('finMsg')&&($('finMsg').textContent='Salvando...');
+  const {error}=await sb.from('financeiro').upsert({user_id:CUR.user_id,dados:FIN,atualizado_em:new Date().toISOString()},{onConflict:'user_id'});
+  if($('finMsg'))$('finMsg').textContent=error?'Não foi possível salvar. Tente de novo.':'Salvo';
+  if(!error){FIN_ALL[CUR.user_id]=FIN;renderAdmin()}
+},500)}
+function finField(id,label,val,type='text',extra=''){return `<label>${label}<input id="fin_${id}" type="${type}" value="${esc(val||'')}" ${extra}></label>`}
+function renderFin(){
+  const box=$('finBody');if(!box)return;
+  if(!FIN_ON){box.innerHTML='<p class="sub" style="margin:0">O financeiro ainda não está ativado no banco de dados. Rode o script 7-financeiro-supabase.sql no Supabase.</p>';return}
+  if(!FIN){box.innerHTML=`<div class="box"><p style="margin:0 0 12px">Ainda não há nada registrado para esta cliente.</p><button id="finStart">Registrar o que foi combinado</button></div>`;return}
+  const f=FIN,m=f.modelo,temDiag=m==='avulso'||m==='diag_acomp',temMens=m==='diag_acomp'||m==='bonus'||m==='acomp';
+  const r=finResumo(f);
+  let fimComp='';if(temMens&&f.inicio&&num(f.meses)>0){const [y,mm]=f.inicio.split('-').map(Number);const d=new Date(y,mm-1+num(f.meses)-1,1);fimComp=`${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`}
+  box.innerHTML=`<div class="box"><h3>O que foi combinado</h3>
+    <div class="fields">
+      <label>Modalidade<select id="fin_modelo">${FIN_MODELOS.map(o=>`<option value="${o[0]}" ${o[0]===m?'selected':''}>${o[1]}</option>`).join('')}</select></label>
+      ${temDiag?finField('valorDiag','Valor do diagnóstico (R$)',f.valorDiag,'text','inputmode="decimal"'):''}
+      ${temMens?finField('valorMensal','Mensalidade (R$)',f.valorMensal,'text','inputmode="decimal"'):''}
+      ${finField('inicio','Início',f.inicio,'date')}
+      ${temMens?finField('meses','Compromisso mínimo (meses)',f.meses,'number','min="0"'):''}
+      ${temMens?finField('diaVenc','Dia de vencimento da mensalidade',f.diaVenc,'number','min="1" max="28"'):''}
+      ${m!=='permuta'?finField('forma','Forma de pagamento',f.forma):''}
+      ${m!=='permuta'?finField('pix','Chave Pix (para as mensagens de cobrança)',f.pix):''}
+    </div>
+    ${m==='permuta'?`<label class="finta">O que você recebe em troca<textarea id="fin_permuta" rows="2" placeholder="Ex.: 4 sessões de podologia até dezembro">${esc(f.permuta||'')}</textarea></label>`:''}
+    ${m==='bonus'?`<p class="sub finnote">Diagnóstico incluso como bônus. Se ela cancelar antes de ${num(f.meses)||3} meses, paga a diferença até R$ 500,00 descontando as mensalidades já pagas.</p>`:''}
+    <label class="finta">Observações<textarea id="fin_obs" rows="2">${esc(f.obs||'')}</textarea></label>
+    <div class="acrow">${m!=='permuta'?`<button id="finGerar">${(f.parcelas||[]).length?'Refazer cobranças em aberto':'Gerar cobranças'}</button>`:''}<span id="finMsg" class="sub" style="font-size:.82rem"></span></div>
+  </div>
+  ${m==='permuta'&&!(f.parcelas||[]).length?'':`<div class="box" style="margin-top:14px"><h3>Pagamentos</h3>
+    <div class="kpis finkpis"><div class="kpi"><div class="v">${brl(r.rec)}</div><div class="l">Recebido</div></div><div class="kpi"><div class="v">${brl(r.aberto)}</div><div class="l">Em aberto</div></div><div class="kpi"><div class="v" style="color:${r.atras?'var(--bad)':'inherit'}">${brl(r.atras)}</div><div class="l">Atrasado</div></div></div>
+    ${fimComp?`<p class="sub" style="margin:10px 0 0;font-size:.84rem">Compromisso mínimo até ${fimComp}.</p>`:''}
+    <div class="tablewrap"><table class="fintab"><thead><tr><th>Referência</th><th>Vencimento</th><th>Valor</th><th>Situação</th><th></th></tr></thead><tbody>
+    ${(f.parcelas||[]).map((p,i)=>{const s=finSit(p);return `<tr><td>${esc(p.ref)}</td><td>${fmtData(p.venc)}</td><td class="calc">${brl(num(p.valor))}</td><td><span class="badge ${s[0]==='good'?'aprovado':s[0]==='bad'?'':'rascunho'}" ${s[0]==='bad'?'style="color:var(--bad);background:rgba(208,68,55,.1)"':''}>${s[1]}</span></td>
+      <td class="acts">${p.pago?`<button class="ghost" data-fdes="${i}">Desfazer</button>`:`<button class="ghost" data-fpago="${i}">Marcar como pago</button><button class="ghost" data-fcob="${i}">Cobrar</button>`}<button class="ghost del" data-frm="${i}" aria-label="Remover">×</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhuma cobrança ainda.</td></tr>'}
+    </tbody></table></div>
+    <div class="acrow">${temMens?'<button class="ghost" id="finMais">Adicionar mais um mês</button>':''}<button class="ghost" id="finAvulsa">Adicionar cobrança avulsa</button></div>
+  </div>`}`;
+}
+function finGerar(){
+  const f=FIN,m=f.modelo,pagas=(f.parcelas||[]).filter(p=>p.pago),novas=[];
+  if((m==='avulso'||m==='diag_acomp')&&num(f.valorDiag)>0&&!pagas.some(p=>p.ref==='Diagnóstico'))novas.push({ref:'Diagnóstico',venc:f.inicio||hojeISO(),valor:f.valorDiag,pago:''});
+  if(m==='diag_acomp'||m==='bonus'||m==='acomp'){
+    const n=Math.max(1,num(f.meses)||1),dia=Math.min(28,Math.max(1,num(f.diaVenc)||10)),[y,mm]=(f.inicio||hojeISO()).split('-').map(Number);
+    for(let i=0;i<n;i++){const d=new Date(y,mm-1+i,dia);const ref='Mensalidade '+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+      if(!pagas.some(p=>p.ref===ref))novas.push({ref,venc:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0'),valor:f.valorMensal,pago:''})}
+  }
+  f.parcelas=pagas.concat(novas).sort((a,b)=>String(a.venc).localeCompare(String(b.venc)));
+}
+$('finMod').addEventListener('input',e=>{
+  const id=(e.target.id||'').replace('fin_','');if(!FIN||!e.target.id.startsWith('fin_'))return;
+  FIN[id]=e.target.value;if(id==='pix'){try{localStorage.setItem('mudiflow-pix',e.target.value)}catch(_){}}
+  if(id==='modelo'){renderFin()}finSave();
+});
+$('finMod').addEventListener('click',async e=>{
+  const t=e.target,ds=t.dataset;
+  if(t.id==='finStart'){FIN=finNovo();renderFin();finSave();return}
+  if(!FIN)return;
+  if(t.id==='finGerar'){if((FIN.parcelas||[]).some(p=>!p.pago)&&!confirm('Refazer as cobranças em aberto com os valores e datas atuais? As já pagas continuam.'))return;finGerar();renderFin();finSave();return}
+  if(t.id==='finMais'){const ms=(FIN.parcelas||[]).filter(p=>/^Mensalidade/.test(p.ref)).map(p=>p.venc).sort();const base=ms.length?ms[ms.length-1]:(FIN.inicio||hojeISO());const [y,mm]=base.split('-').map(Number);const dia=Math.min(28,Math.max(1,num(FIN.diaVenc)||10));const d=new Date(y,mm-1+(ms.length?1:0),dia);
+    FIN.parcelas.push({ref:'Mensalidade '+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(),venc:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0'),valor:FIN.valorMensal,pago:''});renderFin();finSave();return}
+  if(t.id==='finAvulsa'){const ref=prompt('Referência da cobrança (ex.: Reunião extra):');if(!ref)return;const v=prompt('Valor (R$):','');if(!v)return;FIN.parcelas.push({ref,venc:hojeISO(),valor:v,pago:''});FIN.parcelas.sort((a,b)=>String(a.venc).localeCompare(String(b.venc)));renderFin();finSave();return}
+  if(ds.fpago!==undefined){FIN.parcelas[+ds.fpago].pago=hojeISO();renderFin();finSave();return}
+  if(ds.fdes!==undefined){FIN.parcelas[+ds.fdes].pago='';renderFin();finSave();return}
+  if(ds.frm!==undefined){if(!confirm('Remover esta cobrança?'))return;FIN.parcelas.splice(+ds.frm,1);renderFin();finSave();return}
+  if(ds.fcob!==undefined){const p=FIN.parcelas[+ds.fcob],atr=p.venc<hojeISO();
+    const msg=`Olá! ${atr?'Passando para lembrar que está em aberto':'Lembrete'} da ${p.ref.toLowerCase()} da Mudiflow, no valor de ${brl(num(p.valor))}, com vencimento ${atr?'em':'para'} ${fmtData(p.venc)}.${FIN.pix?` Chave Pix: ${FIN.pix}.`:''} Qualquer dúvida, é só me chamar!`;
+    $('credTitle').textContent=`Cobrança para ${CUR.empresa||S.client||CUR.email}:`;$('credText').textContent=msg;$('credCopy').textContent='Copiar mensagem';
+    $('credWa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
+    $('newClient').hidden=true;$('credBox').hidden=false;$('adminPanel').scrollIntoView({behavior:'smooth',block:'start'});return}
+});
+async function loadFinPanel(){
+  if(!sb||ROLE!=='admin')return;
+  const {data,error}=await sb.from('financeiro').select('user_id,dados');
+  if(error){FIN_ON=false;return}
+  FIN_ALL={};(data||[]).forEach(r=>FIN_ALL[r.user_id]=r.dados);renderAdmin();
+}
+function finCell(r){
+  if(!FIN_ON)return '';const f=FIN_ALL[r.user_id];if(!f||!f.modelo)return '';
+  const s=finResumo(f),nome=(FIN_MODELOS.find(o=>o[0]===f.modelo)||['',''])[1];
+  return `<small class="finmini ${s.nAtras?'bad':''}">${esc(nome)}${s.nAtras?`: ${s.nAtras} atrasad${s.nAtras>1?'as':'a'}`:f.modelo==='permuta'?'':': em dia'}</small>`;
+}
+function finTotais(){
+  if(!FIN_ON)return '';const mes=hojeISO().slice(0,7);let rec=0,aber=0,atr=0;
+  Object.values(FIN_ALL).forEach(f=>(f.parcelas||[]).forEach(p=>{const v=num(p.valor);if(p.pago&&p.pago.slice(0,7)===mes)rec+=v;else if(!p.pago&&p.venc<hojeISO())atr+=v;else if(!p.pago&&p.venc&&p.venc.slice(0,7)===mes)aber+=v}));
+  if(!rec&&!aber&&!atr)return '';
+  return `<div class="fintot"><span>Recebido no mês <b>${brl(rec)}</b></span><span>A receber no mês <b>${brl(aber)}</b></span><span>Atrasado <b style="color:${atr?'var(--bad)':'inherit'}">${brl(atr)}</b></span></div>`;
+}
+
 /* ---------- Mostrar ou esconder a senha ---------- */
 (function(){
   const olho='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -2113,7 +2236,7 @@ async function startSession(session){
     $('clientName').placeholder='Nome da empresa do cliente';
     const {data,error}=await sb.from('diagnosticos').select(COLS());
     LIST=error?[]:data;
-    document.body.classList.add('noclient');CUR=null;renderAdmin();loadAcompPanel();
+    document.body.classList.add('noclient');CUR=null;renderAdmin();loadAcompPanel();loadFinPanel();
   }else{
     $('clientName').parentNode.firstChild.textContent='Sua empresa';
     const {data,error}=await sb.from('diagnosticos').select('*').eq('user_id',session.user.id).maybeSingle();
