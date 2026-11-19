@@ -414,7 +414,7 @@ td select{padding:6px 8px;min-width:130px}
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 28</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 29</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -727,12 +727,13 @@ td select{padding:6px 8px;min-width:130px}
     <p class="sub">Para cada profissional: vínculo, horas disponíveis no mês, quanto fatura, percentual e base da comissão e valor fixo (salário ou ajuda de custo). Mostra quanto cada um custa e quanto sobra para a clínica. Os salários fixos também devem estar nas despesas fixas da etapa 3.</p>
     <div class="box">
       <div class="tablewrap"><table>
-        <thead><tr><th>Profissional</th><th>Vínculo</th><th>Horas/mês</th><th>Faturamento/mês (R$)</th><th>Comissão (%)</th><th>Base da comissão</th><th>Fixo/mês (R$)</th><th>Comissão (R$)</th><th>Custo total</th><th>% do faturamento</th><th>Faturamento/hora</th><th></th></tr></thead>
+        <thead><tr><th>Profissional</th><th>Vínculo</th><th>Horas/mês</th><th>Faturamento/mês (R$)</th><th>Comissão (%)</th><th>Base da comissão</th><th>Fixo/mês (R$)</th><th>Comissão (R$)</th><th>Custo total</th><th>% do faturamento</th><th>Faturamento/hora</th><th>Comissão efetiva</th><th>Teto da comissão</th><th></th></tr></thead>
         <tbody id="eqBody"></tbody>
       </table></div>
       <div style="margin-top:12px"><button class="ghost" id="addEq">Adicionar profissional</button></div>
     </div>
     <div class="kpis" id="eqKpis"></div>
+    <div id="eqTeto"></div>
     <div id="eqUseWrap"></div>
     <div class="alerts" id="eqAlerts"></div>
   </section>
@@ -1443,7 +1444,7 @@ function renderEquipe(){
     ${['horas','fat','com'].map(f=>`<td><input data-f="${f}" inputmode="decimal" value="${esc(r[f])}"></td>`).join('')}
     <td><select data-f="base">${opts(BASES,r.base)}</select></td>
     <td><input data-f="fixo" inputmode="decimal" value="${esc(r.fixo)}" placeholder="0"></td>
-    <td class="calc" id="eco${i}"></td><td class="calc" id="ecu${i}"></td><td class="calc" id="epc${i}"></td><td class="calc" id="efh${i}"></td>
+    <td class="calc" id="eco${i}"></td><td class="calc" id="ecu${i}"></td><td class="calc" id="epc${i}"></td><td class="calc" id="efh${i}"></td><td class="calc" id="ece${i}"></td><td class="calc" id="ete${i}"></td>
     <td><button class="x" aria-label="Remover profissional" data-rm="${i}">×</button></td></tr>`).join('');
   updateEquipe();
 }
@@ -1460,15 +1461,47 @@ function eqCalc(){
   const fat=valid.reduce((s,r)=>s+r.fat,0),com=valid.reduce((s,r)=>s+r.com,0),fx=valid.reduce((s,r)=>s+r.fx,0);
   return {k,tx,insP,rows,valid,fat,com,fx,custo:com+fx,pc:fat>0?(com+fx)/fat:NaN,cEf:fat>0?com/fat:NaN};
 }
+/* Teto da comissão: de cada R$ 100 que o profissional fatura, quanto sobra depois de impostos e taxas (etapa 3),
+   insumos (etapa 2), estrutura da clínica (despesas fixas da etapa 3, pelas horas que ele ocupa) e lucro desejado (etapa 2). */
+function tetoCalc(e){
+  e=e||eqCalc();const k=e.k,F=totFix(),vSem=Math.max(totVar()-num(S.vars.comissao)/100,0),ins=e.insP,luc=k.mD;
+  const fatRef=k.fat>0?k.fat:e.fat;
+  const fixT=fatRef>0?F/fatRef:NaN;
+  const prof=r=>{
+    if(!(r.fat>0))return null;
+    const fix=isFinite(k.cH)&&r.h>0?k.cH*r.h/r.fat:fixT;
+    if(!isFinite(fix))return null;
+    const emp=1-vSem-ins-fix,teto=emp-luc,ce=r.com/r.fat;
+    const st=ce>emp?'bad':ce>teto?'warn':ce<teto-0.1?'folga':'ok';
+    return {fix,emp,teto,ce,st};
+  };
+  const team=isFinite(fixT)?{fix:fixT,emp:1-vSem-ins-fixT,teto:1-vSem-ins-fixT-luc}:null;
+  return {vSem,ins,luc,F,team,prof,falta:[!F&&'as despesas fixas (etapa 3)',!(k.aIns>0)&&'os insumos dos procedimentos (etapa 2)',!(fatRef>0)&&'o faturamento (etapa 2 ou da equipe)'].filter(Boolean)};
+}
+const TETO_COR={bad:'var(--bad)',warn:'var(--warn)',ok:'var(--good)',folga:'var(--good)'};
 function updateEquipe(){
   if($('eqBody').children.length!==S.serv.equipe.length)return;
-  const e=eqCalc();
+  const e=eqCalc(),T=tetoCalc(e);
   e.rows.forEach(r=>{const has=r.fat>0||r.fx>0;
     $('eco'+r.i).textContent=has?brl(r.com):'';
     $('ecu'+r.i).textContent=has?brl(r.custo):'';
     $('epc'+r.i).innerHTML=isFinite(r.pc)?`<span style="color:${r.pc>0.6?'var(--bad)':r.pc>0.5?'var(--warn)':'var(--good)'}">${pct(r.pc)}</span>`:'';
     $('efh'+r.i).textContent=isFinite(r.fh)?brl(r.fh)+'/h':'';
+    const t=T.prof(r);
+    $('ece'+r.i).innerHTML=r.fat>0&&r.c>0?(t?`<span style="color:${TETO_COR[t.st]}">${pct(r.com/r.fat)}</span>`:pct(r.com/r.fat)):'';
+    $('ete'+r.i).textContent=t?pct(Math.max(t.teto,0)):'';
   });
+  const tm=T.team,R=v=>brl(v*100);
+  $('eqTeto').innerHTML=e.valid.some(r=>r.fat>0)?`<div class="box" style="margin-top:14px"><b>Quanto a clínica pode pagar de comissão</b>
+    <p class="sub" style="margin:6px 0 10px">De cada <b>R$ 100,00</b> que um profissional fatura, a clínica precisa cobrir:</p>
+    ${tm?`<ul style="margin:0 0 8px;padding-left:18px;font-size:.9rem;line-height:1.7">
+      <li>Impostos, taxas de cartão e outras variáveis (etapa 3): <b>${R(T.vSem)}</b></li>
+      <li>Insumos dos atendimentos (etapa 2): <b>${R(T.ins)}</b></li>
+      <li>Estrutura da clínica, ou seja, as despesas fixas da etapa 3: <b>${R(tm.fix)}</b></li>
+      <li>Lucro desejado (margem da etapa 2): <b>${R(T.luc)}</b></li></ul>
+      <p style="margin:0">Sobram <b style="color:${tm.teto>0?'var(--good)':'var(--bad)'}">${R(Math.max(tm.teto,0))}</b> para a comissão. Esse é o <b>teto da comissão efetiva: ${pct(Math.max(tm.teto,0))}</b>${tm.emp>0?`. Acima de ${pct(tm.emp)} a clínica passa a perder dinheiro com o atendimento`:''}.</p>
+      <p class="sub" style="margin:8px 0 0;font-size:.8rem">Por profissional, a estrutura é calculada pelas horas que cada um ocupa na agenda. A comissão efetiva já considera a base (bruto ou líquido), por isso dá para comparar todos com o teto.</p>`:''}
+    ${T.falta.length?`<p class="sub" style="margin:8px 0 0">Para um cálculo completo, preencha ${T.falta.join(', ')}.</p>`:''}</div>`:'';
   $('eqKpis').innerHTML=`
     <div class="kpi"><div class="v">${brl(e.fat)}</div><div class="l">Faturamento gerado pela equipe</div></div>
     <div class="kpi"><div class="v">${brl(e.com)}</div><div class="l">Comissões por mês</div></div>
@@ -1478,6 +1511,12 @@ function updateEquipe(){
   const cur3=num(S.vars.comissao)/100;
   $('eqUseWrap').innerHTML=isFinite(e.cEf)&&e.cEf>0&&Math.abs(e.cEf-cur3)>0.005?`<div class="alert" style="margin-top:14px"><b>Comissão da etapa 3: ${pct(cur3)} · comissão efetiva da equipe: ${pct(e.cEf)}</b>Para que margens, preço sugerido e meta usem a comissão real, atualize a etapa 3.<div style="margin-top:8px"><button class="ghost" id="eqUse">Usar ${pct(e.cEf)} na etapa 3</button></div></div>`:'';
   const a=[];
+  const tv=e.valid.map(r=>Object.assign({r},T.prof(r)||{})).filter(x=>x.st&&x.r.c>0);
+  const tBad=tv.filter(x=>x.st==='bad'),tWarn=tv.filter(x=>x.st==='warn'),tFol=tv.filter(x=>x.st==='folga'),tOk=tv.filter(x=>x.st==='ok');
+  if(tBad.length)a.push(['bad','Comissão alta: a clínica perde dinheiro',tBad.map(x=>`${esc(x.r.nome)}: comissão efetiva de ${pct(x.ce)}, acima dos ${pct(x.emp)} em que a clínica empata`).join('; ')+'. Cada atendimento desses profissionais tira dinheiro da clínica. Reveja o percentual, a base da comissão (líquido de taxas e insumos) ou o preço dos procedimentos.']);
+  if(tWarn.length)a.push(['warn','Comissão acima do teto',tWarn.map(x=>`${esc(x.r.nome)}: ${pct(x.ce)}, teto de ${pct(x.teto)}`).join('; ')+`. A clínica paga as contas, mas não chega no lucro desejado de ${pct(T.luc)}. Cada ponto acima do teto sai do lucro.`]);
+  if(tOk.length)a.push(['good','Comissão adequada',tOk.map(x=>`${esc(x.r.nome)}: ${pct(x.ce)}, teto de ${pct(x.teto)}`).join('; ')+'. Cabe nas contas da clínica com o lucro desejado.']);
+  if(tFol.length)a.push(['good','Comissão com folga',tFol.map(x=>`${esc(x.r.nome)}: ${pct(x.ce)}, teto de ${pct(x.teto)}`).join('; ')+'. Há espaço para premiar metas ou reter bons profissionais sem comprometer o lucro, ou para a clínica ficar com essa margem extra.']);
   const hi=e.valid.filter(r=>r.pc>0.5);
   if(hi.length)a.push([hi.some(r=>r.pc>0.6)?'bad':'warn','Custo acima de 50% do que o profissional fatura',`${hi.map(r=>`${esc(r.nome)} (${pct(r.pc)})`).join(', ')}. Sobra pouco para insumos, impostos, taxas e toda a estrutura da clínica.`]);
   const br=e.valid.filter(r=>r.base==='bruto'&&r.c>0&&r.fat>0);
@@ -1567,7 +1606,8 @@ function renderReportServ(){
      :k.aPl>0?'<p><b>Atenção:</b> com os números atuais cada atendimento gera prejuízo. Rever preço, insumos e comissão é a prioridade.</p>':'<p class="sub">Não preenchido.</p>'}
     <h3>5. Equipe e comissão</h3>
     ${e.valid.length&&e.fat>0?`<ul><li>Faturamento da equipe: ${brl(e.fat)}; comissões ${brl(e.com)}; custo total da equipe <b>${brl(e.custo)}</b> (${pct(e.pc)} do faturamento).</li>
-      ${e.valid.map(r=>`<li>${esc(r.nome)} (${({clt:'CLT',aut:'Autônomo/PJ',parc:'Parceiro'})[r.vinc]||''}): fatura ${brl(r.fat)}, custa ${brl(r.custo)}${isFinite(r.pc)?` (${pct(r.pc)})`:''}${isFinite(r.fh)?`, ${brl(r.fh)} por hora`:''}.</li>`).join('')}</ul>`:'<p class="sub">Não preenchida.</p>'}
+      ${(()=>{const T=tetoCalc(e);return (T.team?`<li>Teto da comissão efetiva para manter o lucro desejado: <b>${pct(Math.max(T.team.teto,0))}</b> (de cada R$ 100: ${brl(T.vSem*100)} de impostos e taxas, ${brl(T.ins*100)} de insumos, ${brl(T.team.fix*100)} de estrutura e ${brl(T.luc*100)} de lucro).</li>`:'')
+        +e.valid.map(r=>{const t=T.prof(r);return `<li>${esc(r.nome)} (${({clt:'CLT',aut:'Autônomo/PJ',parc:'Parceiro'})[r.vinc]||''}): fatura ${brl(r.fat)}, custa ${brl(r.custo)}${isFinite(r.pc)?` (${pct(r.pc)})`:''}${isFinite(r.fh)?`, ${brl(r.fh)} por hora`:''}${t&&r.c>0?`; comissão efetiva ${pct(t.ce)} (teto ${pct(Math.max(t.teto,0))}: ${({bad:'acima do ponto em que a clínica perde dinheiro',warn:'acima do teto',ok:'adequada',folga:'com folga'})[t.st]})`:''}.</li>`}).join('')})()}</ul>`:'<p class="sub">Não preenchida.</p>'}
     <h3>6. Processos e controles</h3>
     ${p.ans?`<p>Nota geral: <b>${pct(p.score)}</b> · nível <b>${nivel(p.score)}</b></p>
       <ul>${p.areas.map(A=>`<li>${esc(A.a)}: ${isFinite(A.score)?pct(A.score):'não avaliado'}</li>`).join('')}</ul>`:'<p class="sub">Não avaliados.</p>'}
@@ -2243,6 +2283,11 @@ function reviewDataServ(){
   if(s.perda>0)add(2,4,'Faltas e cancelamentos',`Com ${pct(s.fal)} de faltas, cerca de ${brl(s.perda)} por mês deixam de entrar.`,
     '<ul><li>Confirmação na véspera, lista de espera e política de faltas (sinal ou cobrança).</li></ul>',s.perda);
   // Equipe
+  {const T=tetoCalc(e),tv=e.valid.map(r=>Object.assign({r},T.prof(r)||{})).filter(x=>x.st&&x.r.c>0);
+    const ac=tv.filter(x=>x.st==='bad'||x.st==='warn');
+    if(ac.length)add(ac.some(x=>x.st==='bad')?3:2,5,'Comissão acima do teto',ac.map(x=>`${esc(x.r.nome)}: ${pct(x.ce)} (teto ${pct(Math.max(x.teto,0))})`).join('; '),
+      `<ul><li>Opções: reduzir o percentual, mudar a base para líquido de taxas e insumos, ou reajustar o preço dos procedimentos que esses profissionais mais fazem.</li><li>Cada ponto acima do teto custa cerca de ${brl(ac.reduce((t,x)=>t+x.r.fat*0.01,0))} por mês.</li></ul>`,
+      ac.reduce((t,x)=>t+x.r.fat*Math.max(x.ce-x.teto,0),0));}
   const hi=e.valid.filter(r=>r.pc>0.5);
   if(hi.length)add(2,5,'Equipe com custo acima de 50% do que fatura',hi.map(r=>`${esc(r.nome)} (${pct(r.pc)})`).join(', '),
     '<ul><li>Rever percentual, base de cálculo ou o mix de procedimentos desses profissionais.</li></ul>',0);
