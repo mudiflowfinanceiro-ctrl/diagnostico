@@ -262,6 +262,20 @@ body.locked #swotOut,body.locked #stockAlerts,body.locked #expAlerts,body.locked
 .acacts>b{display:block;font-size:.84rem;color:var(--brand);margin-bottom:4px}
 .acacts small,.acplano small{color:var(--muted);font-size:.74rem}
 .acrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.planos .plhead{display:flex;justify-content:space-between;align-items:center;gap:10px}.planos .plhead h4{margin:0}
+.planos h5{font-family:var(--serif);color:var(--brand);font-size:.95rem;margin:20px 0 10px}
+.planos label em{display:block;font-style:normal;font-size:.74rem;color:var(--muted);margin-top:3px}
+.plnao{list-style:none;padding:0;margin:12px 0 0;font-size:.82rem;color:var(--muted);display:grid;gap:4px}.plnao li{padding-left:20px;position:relative}.plnao li::before{content:"✕";position:absolute;left:0}
+.plcard label.plchk{padding-bottom:4px;margin-top:6px}
+.plcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.plcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.plcard>b{display:block;color:var(--brand);margin-bottom:10px}
+.plcard ul{list-style:none;padding:0;margin:12px 0 0;font-size:.84rem;display:grid;gap:5px}
+.plcard li{padding-left:20px;position:relative}.plcard li.y::before{content:"✓";position:absolute;left:0;color:#2F9468;font-weight:700}.plcard li.n::before{content:"✕";position:absolute;left:0;color:var(--muted)}.plcard li.n{color:var(--muted)}
+.pltab input{width:62px;min-width:0;padding:6px 8px}.pltab .plnome{width:100%;font-weight:600}.pltab .plobs{width:100%;margin-top:4px;font-size:.76rem}.pltab .plval{width:84px}.pltab th{font-size:.72rem;vertical-align:bottom;white-space:normal;max-width:80px}.pltab td{padding-left:4px;padding-right:4px}
+.pltab td small{display:block;font-size:.72rem;color:var(--muted);margin-top:3px}.pltab .plval{font-weight:600}
+.planos label.plchk{display:flex;flex-direction:row;align-items:center;gap:8px;align-self:end;padding-bottom:10px;font-weight:600;color:var(--brand)}.planos label.plchk input{width:18px;height:18px;margin:0;flex:none}
+
 #acMsg{font-size:.84rem;color:var(--muted)}
 .acomp h4{font-family:var(--serif);color:var(--brand);font-size:1rem;margin:22px 0 8px}
 .acchart{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px}
@@ -330,6 +344,12 @@ body.noclient .mods,body.noclient #calcMod,body.noclient #custoMod,body.noclient
 .finmod{margin-top:22px}
 .finmod h2{font-family:var(--serif);color:var(--brand);font-size:1.5rem;margin:0 0 6px}
 body:not([data-mod="fin"]) #finMod{display:none!important}
+body:not([data-mod="pag"]) #pagMod{display:none!important}
+.finpromo{margin-top:12px;font-weight:600;color:var(--brand)}
+@media(max-width:560px){#pagMod .fintab thead{display:none}#pagMod .fintab tr{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line)}#pagMod .fintab td{border:0;padding:0}#pagMod .fintab td:nth-child(1){font-weight:600}#pagMod .fintab td:nth-child(2),#pagMod .fintab td:nth-child(3){font-size:.84rem;color:var(--muted)}#pagMod .fintab td:nth-child(4){grid-column:2;grid-row:1/4;align-self:center}#pagMod .fintab .badge{white-space:nowrap}}
+.finregra{border-radius:12px;padding:12px 16px;margin:0 0 14px;font-size:.9rem;border:1.5px solid}.finregra.pend{background:rgba(242,96,31,.08);border-color:#F2601F;color:#7a2e0b}.finregra.ok{background:rgba(47,148,104,.08);border-color:#2F9468;color:#1e5e42}
+.pagplano{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.9rem;margin:0 0 4px}.pagplano b{color:var(--brand)}
+.pagpix{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px;font-size:.88rem}.pagpix code{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
 .finta{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);margin-top:12px}
 .finta textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;resize:vertical}
 .finnote{margin:10px 0 0;font-size:.84rem}
@@ -414,7 +434,7 @@ td select{padding:6px 8px;min-width:130px}
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 29</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 31</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -454,10 +474,12 @@ td select{padding:6px 8px;min-width:130px}
       <h3>Clientes</h3>
       <div class="tools">
         <input id="adminSearch" type="search" placeholder="Buscar cliente" aria-label="Buscar cliente">
+        <button class="ghost" id="btnPlanos">Planos e valores</button>
         <button id="btnNewClient">Novo cliente</button>
       </div>
     </div>
     <div id="finTot"></div>
+    <div class="newc planos" id="planosBox" hidden></div>
     <form class="newc" id="newClient" hidden>
       <h4>Criar acesso para um cliente</h4>
       <div class="fields">
@@ -504,6 +526,7 @@ td select{padding:6px 8px;min-width:130px}
   <div class="devnote noprint" id="devNote" hidden><b id="devNoteTitle"></b><small id="devNoteDate"></small><div id="devNoteText"></div></div>
   <nav class="mods noprint" id="modNav" aria-label="Ferramentas"></nav>
   <div class="box modbox noprint" id="modBox" hidden></div>
+  <section class="finmod noprint" id="pagMod"><h2>Pagamentos</h2><p class="sub">O seu plano com a Mudiflow e a situação de cada pagamento.</p><div id="pagBody"></div></section>
   <section class="box acomp noprint" id="acomp" hidden>
     <h3>Acompanhamento mensal</h3>
     <div id="acBody"></div>
@@ -1708,7 +1731,7 @@ function loadRow(row){
   cur=1;renderAll();paintStatus();setSaveMsg('');go(1);
   $('reviewBox').hidden=ROLE!=='admin';if(ROLE==='admin')renderReview();
   $('modBox').hidden=true;document.body.dataset.mod='diag';paintMods();
-  loadAcomp();loadFin();
+  loadAcomp();loadFin();loadPag();
 }
 function paintStatus(){
   if(!CUR)return;
@@ -1759,7 +1782,11 @@ async function setStatus(st,confirmText){
   if(st==='aprovado'){FOTO_SET.add(data.user_id);setTimeout(loadAcomp,400)}
 }
 $('btnSend').onclick=$('btnSend2').onclick=()=>setStatus('enviado','Enviar o diagnóstico para a Elaine revisar?');
-$('btnApprove').onclick=()=>{if(!confirm('Aprovar e liberar o relatório para este cliente?'))return;S.revisao=null;setStatus('aprovado')};
+function diagEmAberto(){const ps=(FIN&&FIN.parcelas||[]).filter(p=>/^Diagnóstico/.test(p.ref)&&!p.parceria&&!p.pago);return ps.reduce((a,p)=>a+num(p.valor),0)}
+$('btnApprove').onclick=()=>{const ab=diagEmAberto();
+  if(ab>0){if(!confirm(`⚠ ATENÇÃO: o diagnóstico desta cliente ainda tem ${brl(ab)} em aberto.\n\nRegra combinada: o relatório só é liberado DEPOIS do pagamento.\n\nConfira o Financeiro. Só clique em OK se o pagamento já caiu e você ainda não marcou como pago.`))return}
+  else if(!FIN&&FIN_ON){if(!confirm('⚠ Esta cliente não tem nada registrado no Financeiro.\n\nRegra combinada: o relatório só é liberado DEPOIS do pagamento.\n\nLiberar mesmo assim?'))return}
+  if(!confirm('Aprovar e liberar o relatório para este cliente?'))return;S.revisao=null;setStatus('aprovado')};
 $('btnReturn').onclick=()=>{
   const miss=reviewData().miss.filter(m=>!/opcional/.test(m[0])).map(m=>'- '+m[0].replace(/\s*\((opcional, )?etapa \d\)\.?$/,'').replace(/\.$/,''));
   if(!S.fixas.some(r=>/pr[oó].?labore/i.test(r.nome)&&num(r.valor)>0))miss.push('- Pró-labore (a sua retirada mensal) nas despesas fixas');
@@ -2572,16 +2599,18 @@ function setMod(code){
   if(code==='acomp')renderAcomp();
   if(code==='calc')mcLoad();
   if(code==='custo')renderCusto();
+  if(code==='pag')renderPag();
 }
 function paintMods(){
   if(!CUR)return;
   const on=modsOf(CUR), adm=ROLE==='admin';
   const vis=MODS.filter(m=>adm||on.includes(m[0]));
   $('modNav').innerHTML=vis.map(m=>`<button type="button" data-mod="${m[2]}" class="${on.includes(m[0])?'':'off'}">${m[1]}${adm&&!on.includes(m[0])?' <small>(não liberado)</small>':''}</button>`).join('')
+    +(!adm&&PAG?`<button type="button" data-mod="pag">Pagamentos</button>`:'')
     +(adm?`<button type="button" class="fin" data-mod="fin">Financeiro</button><button type="button" class="cfg" id="btnMods">Módulos e plano</button>`:'');
-  $('modNav').hidden=!adm&&vis.length<2;
+  $('modNav').hidden=!adm&&vis.length+(PAG?1:0)<2;
   document.body.classList.toggle('nodiag',!adm&&!on.includes('diagnostico'));
-  const cur=document.body.dataset.mod, curOk=vis.some(m=>m[2]===cur)||(adm&&cur==='fin');
+  const cur=document.body.dataset.mod, curOk=vis.some(m=>m[2]===cur)||(adm&&cur==='fin')||(!adm&&PAG&&cur==='pag');
   setMod(curOk?cur:(vis[0]?vis[0][2]:'none'));
   if(!adm&&!vis.length){$('modNav').hidden=false;$('modNav').innerHTML='<p class="sub" style="margin:0">Nenhuma ferramenta liberada ainda. Fale com a Elaine.</p>'}
 }
@@ -2764,13 +2793,14 @@ function lembretePrazo(id){
 
 /* ---------- Financeiro por cliente (só admin) ---------- */
 let FIN=null, FIN_ALL={}, FIN_ON=true, finT;
-const FIN_MODELOS=[['avulso','Diagnóstico avulso'],['diag_acomp','Diagnóstico + Acompanhamento'],['bonus','Acompanhamento com diagnóstico bônus'],['acomp','Só acompanhamento'],['permuta','Permuta (troca de serviço)']];
+const FIN_MODELOS=[['avulso','Diagnóstico avulso'],['diag_acomp','Diagnóstico + Acompanhamento'],['bonus','Acompanhamento com diagnóstico bônus'],['acomp','Só acompanhamento'],['permuta','Parceria (permuta de serviços)']];
 const hojeISO=()=>{const h=new Date();return h.getFullYear()+'-'+String(h.getMonth()+1).padStart(2,'0')+'-'+String(h.getDate()).padStart(2,'0')};
 const fmtData=d=>{if(!d)return '—';const [y,m,dd]=String(d).split('-');return `${dd}/${m}/${y}`};
 function finNovo(){let pix='';try{pix=localStorage.getItem('mudiflow-pix')||''}catch(e){}
   return {modelo:'diag_acomp',valorDiag:'500',valorMensal:'250',inicio:hojeISO(),meses:'3',diaVenc:'10',forma:'Pix',pix,permuta:'',obs:'',parcelas:[]}}
-function finSit(p){if(p.pago)return ['good','Pago em '+fmtData(p.pago).slice(0,5)];return (p.venc&&p.venc<hojeISO())?['bad','Atrasado']:['','Em aberto']}
-function finResumo(f){const r={rec:0,aberto:0,atras:0,nAtras:0};(f&&f.parcelas||[]).forEach(p=>{const v=num(p.valor);if(p.pago)r.rec+=v;else if(p.venc&&p.venc<hojeISO()){r.atras+=v;r.nAtras++}else r.aberto+=v});return r}
+function finSit(p){if(p.parceria)return p.pago?['good','Abatido em '+fmtData(p.pago).slice(0,5)]:['','A abater'];if(p.pago)return ['good','Pago em '+fmtData(p.pago).slice(0,5)];return (p.venc&&p.venc<hojeISO())?['bad','Atrasado']:['','Em aberto']}
+function finResumo(f){const r={rec:0,aberto:0,atras:0,nAtras:0};(f&&f.parcelas||[]).forEach(p=>{const v=num(p.valor);if(p.pago)r.rec+=v;else if(!p.parceria&&p.venc&&p.venc<hojeISO()){r.atras+=v;r.nAtras++}else r.aberto+=v});return r}
+const finRecebidos=f=>(f&&f.recebidos||[]).reduce((a,x)=>a+num(x.valor),0);
 async function loadFin(){
   FIN=null;if(ROLE!=='admin'||!CUR||!FIN_ON)return renderFin();
   const {data,error}=await sb.from('financeiro').select('dados').eq('user_id',CUR.user_id).maybeSingle();
@@ -2788,57 +2818,175 @@ function renderFin(){
   const box=$('finBody');if(!box)return;
   if(!FIN_ON){box.innerHTML='<p class="sub" style="margin:0">O financeiro ainda não está ativado no banco de dados. Rode o script 7-financeiro-supabase.sql no Supabase.</p>';return}
   if(!FIN){box.innerHTML=`<div class="box"><p style="margin:0 0 12px">Ainda não há nada registrado para esta cliente.</p><button id="finStart">Registrar o que foi combinado</button></div>`;return}
-  const f=FIN,m=f.modelo,temDiag=m==='avulso'||m==='diag_acomp',temMens=m==='diag_acomp'||m==='bonus'||m==='acomp';
-  const r=finResumo(f);
-  let fimComp='';if(temMens&&f.inicio&&num(f.meses)>0){const [y,mm]=f.inicio.split('-').map(Number);const d=new Date(y,mm-1+num(f.meses)-1,1);fimComp=`${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`}
-  box.innerHTML=`<div class="box"><h3>O que foi combinado</h3>
+  const f=FIN,m=f.modelo,par=m==='permuta',temDiag=m==='avulso'||m==='diag_acomp'||par,temMens=m==='diag_acomp'||m==='bonus'||m==='acomp'||par;
+  const r=finResumo(f),rcb=finRecebidos(f),totPar=(f.parcelas||[]).reduce((a,p)=>a+num(p.valor),0);
+  const fimComp=temMens?finFimComp(f):'';
+  const dAb=temDiag&&!par?(f.parcelas||[]).filter(p=>/^Diagnóstico/.test(p.ref)&&!p.pago).reduce((a,p)=>a+num(p.valor),0):0;
+  box.innerHTML=`${temDiag&&!par?`<div class="finregra ${dAb>0?'pend':'ok'}"><b>Regra: relatório e reunião de entrega só depois do diagnóstico pago.</b> ${(f.parcelas||[]).length?(dAb>0?`Falta receber ${brl(dAb)} do diagnóstico. Não libere o relatório ainda.`:'Diagnóstico pago. Pode liberar o relatório.'):'Gere as cobranças para acompanhar.'}</div>`:''}
+  <div class="box"><h3>O que foi combinado</h3>
     <div class="fields">
       <label>Modalidade<select id="fin_modelo">${FIN_MODELOS.map(o=>`<option value="${o[0]}" ${o[0]===m?'selected':''}>${o[1]}</option>`).join('')}</select></label>
-      ${temDiag?finField('valorDiag','Valor do diagnóstico (R$)',f.valorDiag,'text','inputmode="decimal"'):''}
-      ${temMens?finField('valorMensal','Mensalidade (R$)',f.valorMensal,'text','inputmode="decimal"'):''}
+      ${temDiag?finField('valorDiag',par?'Valor cheio do diagnóstico (R$)':'Valor do diagnóstico (R$)',f.valorDiag,'text','inputmode="decimal"'):''}
+      ${temMens&&PLAN?`<label>Plano de acompanhamento<select id="fin_planoIdx"><option value="">Escolha</option>${PLAN.planos.map((p,i)=>`<option value="${i}" ${String(f.planoIdx)===String(i)?'selected':''}>${esc(p.nome)} (${num(p.reunioes)} reuni${num(p.reunioes)>1?'ões':'ão'} por mês)</option>`).join('')}</select></label>`:''}
+      ${temMens?finField('reunioes','Reuniões por mês',f.reunioes,'number','min="0"'):''}
+      ${temMens?finField('valorMensal','Mensalidade cheia (R$)',f.valorMensal,'text','inputmode="decimal"'):''}
+      ${temDiag&&!par?`<label>Pagamento do diagnóstico<select id="fin_diagForma">${[['pix','Pix à vista'],['pix2','Pix em 2x'],['cartao','Cartão de crédito']].map(o=>`<option value="${o[0]}" ${(f.diagForma||'pix')===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></label>`:''}
+      ${temDiag&&!par&&f.diagForma==='cartao'?finField('valorCartao','Valor do diagnóstico no cartão (R$)',f.valorCartao,'text','inputmode="decimal"'):''}
       ${finField('inicio','Início',f.inicio,'date')}
       ${temMens?finField('meses','Compromisso mínimo (meses)',f.meses,'number','min="0"'):''}
       ${temMens?finField('diaVenc','Dia de vencimento da mensalidade',f.diaVenc,'number','min="1" max="28"'):''}
       ${m!=='permuta'?finField('forma','Forma de pagamento',f.forma):''}
       ${m!=='permuta'?finField('pix','Chave Pix (para as mensagens de cobrança)',f.pix):''}
     </div>
-    ${m==='permuta'?`<label class="finta">O que você recebe em troca<textarea id="fin_permuta" rows="2" placeholder="Ex.: 4 sessões de podologia até dezembro">${esc(f.permuta||'')}</textarea></label>`:''}
+    ${par?`<label class="finta">O que você recebe em troca<textarea id="fin_permuta" rows="2" placeholder="Ex.: sessões de podologia para mim e minha família">${esc(f.permuta||'')}</textarea></label>
+      <p class="sub finnote">Parceria: os valores são cheios e cada parcela é abatida com os serviços que você recebe. Deixe o valor do diagnóstico ou da mensalidade em zero se não fizer parte.</p>`:''}
+    ${!par&&(temDiag||temMens)&&PLAN&&(PLAN.promo.ativa||f.promo)?`<label class="check finpromo"><input type="checkbox" id="finPromo" ${f.promo?'checked':''}> Aplicar a promoção ${esc(f.promo?f.promoNome:PLAN.promo.nome)}${f.promo?`: ${num(f.promoDesc)}% de desconto nas ${num(f.promoMeses)} primeiras mensalidades${temDiag?`, diagnóstico por ${brl(num(f.valorDiag))}`:''}${f.abater&&m==='diag_acomp'?` e abatido nas mensalidades (${brl(num(f.valorDiag)/(num(f.meses)||1))} por mês)`:''}`:''}</label>`:''}
+    ${temMens&&num(f.valorMensal)>0?`<p class="sub finnote">Mensalidades: ${finMensais(f).map((v,i)=>`${i+1}º mês ${brl(v)}`).join(' · ')}</p>`:''}
     ${m==='bonus'?`<p class="sub finnote">Diagnóstico incluso como bônus. Se ela cancelar antes de ${num(f.meses)||3} meses, paga a diferença até R$ 500,00 descontando as mensalidades já pagas.</p>`:''}
     <label class="finta">Observações<textarea id="fin_obs" rows="2">${esc(f.obs||'')}</textarea></label>
-    <div class="acrow">${m!=='permuta'?`<button id="finGerar">${(f.parcelas||[]).length?'Refazer cobranças em aberto':'Gerar cobranças'}</button>`:''}<span id="finMsg" class="sub" style="font-size:.82rem"></span></div>
+    <h3 style="margin-top:18px">Dados da cliente para o contrato</h3>
+    <div class="fields">
+      ${finField('ctEmpresa','Razão social ou nome da empresa',f.ctEmpresa??(CUR.empresa||S.client||''))}
+      ${finField('ctDoc','CNPJ (ou CPF)',f.ctDoc)}
+      ${finField('ctResp','Nome da responsável',f.ctResp)}
+      ${finField('ctCpf','CPF da responsável',f.ctCpf)}
+      ${finField('ctEmail','E-mail',f.ctEmail??(CUR.email||''))}
+      ${finField('ctFone','Telefone',f.ctFone)}
+    </div>
+    <div class="acrow"><button id="finGerar">${(f.parcelas||[]).length?(par?'Refazer parcelas a abater':'Refazer cobranças em aberto'):(par?'Gerar parcelas da parceria':'Gerar cobranças')}</button><button type="button" class="ghost" id="finContrato">Gerar contrato</button><span id="finMsg" class="sub" style="font-size:.82rem"></span></div>
   </div>
-  ${m==='permuta'&&!(f.parcelas||[]).length?'':`<div class="box" style="margin-top:14px"><h3>Pagamentos</h3>
-    <div class="kpis finkpis"><div class="kpi"><div class="v">${brl(r.rec)}</div><div class="l">Recebido</div></div><div class="kpi"><div class="v">${brl(r.aberto)}</div><div class="l">Em aberto</div></div><div class="kpi"><div class="v" style="color:${r.atras?'var(--bad)':'inherit'}">${brl(r.atras)}</div><div class="l">Atrasado</div></div></div>
+  ${par&&!(f.parcelas||[]).length?'':`<div class="box" style="margin-top:14px"><h3>${par?'Parceria':'Pagamentos'}</h3>
+    ${par?`<div class="kpis finkpis"><div class="kpi"><div class="v">${brl(totPar)}</div><div class="l">Valor dos seus serviços</div></div><div class="kpi"><div class="v">${brl(rcb)}</div><div class="l">Serviços recebidos da parceira</div></div><div class="kpi"><div class="v" style="color:${totPar-rcb>0?'var(--accent-ink)':'#2F9468'}">${brl(Math.abs(totPar-rcb))}</div><div class="l">${totPar-rcb>0?'Falta abater':totPar-rcb<0?'Você recebeu a mais':'Parceria equilibrada'}</div></div></div>`:`<div class="kpis finkpis"><div class="kpi"><div class="v">${brl(r.rec)}</div><div class="l">Recebido</div></div><div class="kpi"><div class="v">${brl(r.aberto)}</div><div class="l">Em aberto</div></div><div class="kpi"><div class="v" style="color:${r.atras?'var(--bad)':'inherit'}">${brl(r.atras)}</div><div class="l">Atrasado</div></div></div>`}
     ${fimComp?`<p class="sub" style="margin:10px 0 0;font-size:.84rem">Compromisso mínimo até ${fimComp}.</p>`:''}
     <div class="tablewrap"><table class="fintab"><thead><tr><th>Referência</th><th>Vencimento</th><th>Valor</th><th>Situação</th><th></th></tr></thead><tbody>
     ${(f.parcelas||[]).map((p,i)=>{const s=finSit(p);return `<tr><td>${esc(p.ref)}</td><td>${fmtData(p.venc)}</td><td class="calc">${brl(num(p.valor))}</td><td><span class="badge ${s[0]==='good'?'aprovado':s[0]==='bad'?'':'rascunho'}" ${s[0]==='bad'?'style="color:var(--bad);background:rgba(208,68,55,.1)"':''}>${s[1]}</span></td>
-      <td class="acts">${p.pago?`<button class="ghost" data-fdes="${i}">Desfazer</button>`:`<button class="ghost" data-fpago="${i}">Marcar como pago</button><button class="ghost" data-fcob="${i}">Cobrar</button>`}<button class="ghost del" data-frm="${i}" aria-label="Remover">×</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhuma cobrança ainda.</td></tr>'}
+      <td class="acts">${p.pago?`<button class="ghost" data-fdes="${i}">Desfazer</button>`:p.parceria?`<button class="ghost" data-fpago="${i}">Marcar como abatido</button>`:`<button class="ghost" data-fpago="${i}">Marcar como pago</button><button class="ghost" data-fcob="${i}">Cobrar</button>`}<button class="ghost del" data-frm="${i}" aria-label="Remover">×</button></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhuma cobrança ainda.</td></tr>'}
     </tbody></table></div>
     <div class="acrow">${temMens?'<button class="ghost" id="finMais">Adicionar mais um mês</button>':''}<button class="ghost" id="finAvulsa">Adicionar cobrança avulsa</button></div>
+    ${par?`<h3 style="margin-top:18px">Serviços recebidos da parceira</h3>
+    <div class="tablewrap"><table class="fintab"><thead><tr><th>Serviço</th><th>Data</th><th>Valor</th><th></th></tr></thead><tbody>
+    ${(f.recebidos||[]).map((x,i)=>`<tr><td>${esc(x.desc)}</td><td>${fmtData(x.data)}</td><td class="calc">${brl(num(x.valor))}</td><td class="acts"><button class="ghost del" data-rrm="${i}" aria-label="Remover">×</button></td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhum serviço registrado ainda.</td></tr>'}
+    </tbody></table></div>
+    <div class="acrow"><button class="ghost" id="finRecebido">Registrar serviço recebido</button><span class="sub" style="font-size:.8rem;margin:0">Depois, marque como abatidas as parcelas cobertas.</span></div>`:''}
   </div>`}`;
+}
+function finMensais(f){const n=Math.max(1,num(f.meses)||1),base=num(f.valorMensal),tot=f.promo&&f.abater&&f.modelo==='diag_acomp'?num(f.valorDiag):0,ab=Math.round(tot/n*100)/100;
+  return Array.from({length:n},(_,i)=>{const a=i<n-1?ab:Math.round((tot-ab*(n-1))*100)/100;return Math.max(0,Math.round(((f.promo&&i<num(f.promoMeses)?base*(1-num(f.promoDesc)/100):base)-a)*100)/100)})}
+function finFimComp(f){const ms=(f.parcelas||[]).filter(p=>/^Mensalidade/.test(p.ref)).map(p=>p.venc).sort();
+  if(ms.length){const [y,m]=ms[ms.length-1].split('-');return m+'/'+y}
+  if(f.inicio&&num(f.meses)>0){const [y,mm]=f.inicio.split('-').map(Number);const d=new Date(y,mm-1+num(f.meses)-1,1);return `${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`}return ''}
+function finAplicaPlano(){const f=FIN,p=PLAN&&PLAN.planos[+f.planoIdx];if(!p)return;f.planoNome=p.nome;f.reunioes=String(num(p.reunioes));f.valorMensal=String(planValor(p,num(PLAN.hora)));if(!f.meses)f.meses=PLAN.meses}
+function finAplicaPromo(on){const f=FIN,pr=PLAN.promo;f.promo=on;
+  if(on){f.promoNome=pr.nome;f.promoDesc=pr.desc;f.promoMeses=pr.meses;f.abater=!!pr.abater;f.valorDiag=String(num(pr.diagValor));f.meses=f.meses||PLAN.meses}
+  else{f.valorDiag=String(num(PLAN.diagValor))}
+  finCartao()}
+function finCartao(){const f=FIN,g=PLAN&&PLAN.pag,tx=g?num(g.taxa)/100:0;if(f.diagForma==='cartao')f.valorCartao=String(Math.round((tx>0&&tx<1?num(f.valorDiag)/(1-tx):num(f.valorDiag))*100)/100)}
+function finContrato(){
+  const f=FIN,m=f.modelo,E=(PLAN&&PLAN.eu)||{},h=PLAN?num(PLAN.hora):0;
+  const par=m==='permuta';
+  if(!(f.parcelas||[]).length){alert(par?'Clique antes em "Gerar parcelas da parceria" para o contrato sair com os valores.':'Clique antes em "Gerar cobranças" para o contrato sair com a tabela de pagamentos.');return}
+  const temDiag=m==='avulso'||m==='diag_acomp'||m==='bonus'||(par&&num(f.valorDiag)>0),temMens=m==='diag_acomp'||m==='bonus'||m==='acomp'||(par&&num(f.valorMensal)>0);
+  const pl=PLAN&&PLAN.planos[+f.planoIdx],dur=pl?num(pl.duracao):1,reu=num(f.reunioes)||1,cm=num(f.meses)||3;
+  const x=v=>esc(v||'')||'<span class="blank">________________</span>';
+  const fd=d=>fmtData(d);const hoje=new Date(),MES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const durTxt=dur===1?'1 hora':(String(dur).replace('.',',')+' horas');
+  const diagRegular=PLAN?num(PLAN.diagValor):0;
+  let valores='';
+  if(par){const tot=(f.parcelas||[]).reduce((a,p)=>a+num(p.valor),0);
+    valores=`<p><b>Parceria (permuta de serviços).</b> Os serviços da seção 2 são pagos com serviços da contratante, e não em dinheiro. Em troca, a contratante presta à contratada: ${x(f.permuta)}. Os valores abaixo são os valores cheios dos serviços da Mudiflow e servem de referência para o abatimento.</p>
+    <table><tr><th>Referência</th><th>Mês</th><th>Valor cheio</th></tr>${(f.parcelas||[]).map(p=>`<tr><td>${esc(p.ref)}</td><td>${fd(p.venc)}</td><td>${brl(num(p.valor))}</td></tr>`).join('')}<tr class="tot"><td>Total</td><td></td><td>${brl(tot)}</td></tr></table>
+    <p>Cada serviço prestado pela contratante é registrado com o seu valor e abatido desse total. As partes acompanham o saldo pela ferramenta. Se a parceria terminar com saldo em aberto, as partes combinam a compensação em serviços ou o encerramento sem cobrança em dinheiro.</p>
+    <p>A contratante também se compromete a dar a sua opinião sobre a ferramenta e, se autorizar na seção 5, um depoimento.</p>`}
+  else{
+    const linhas=[];
+    if(temDiag&&m!=='bonus')linhas.push(['Diagnóstico de Vendas',diagRegular?brl(diagRegular):'—',brl(num(f.valorDiag))]);
+    if(m==='bonus')linhas.push(['Diagnóstico de Vendas',diagRegular?brl(diagRegular):'—','Incluso, condicionado ao acompanhamento']);
+    if(temMens){const ms=finMensais(f);const cheio=num(f.valorMensal);
+      linhas.push([`Acompanhamento mensal${f.planoNome?' · plano '+esc(f.planoNome):''}`,brl(cheio)+' por mês',ms.every(v=>v===cheio)?brl(cheio)+' por mês':ms.map((v,i)=>`${i+1}º mês: ${brl(v)}`).join('<br>')])}
+    valores=`<table><tr><th>Serviço</th><th>Valor regular</th><th>Valor contratado</th></tr>${linhas.map(l=>`<tr><td>${l[0]}</td><td>${l[1]}</td><td>${l[2]}</td></tr>`).join('')}</table>`;
+    if(f.promo)valores+=`<p>Condição da promoção ${esc(f.promoNome||'')}: ${num(f.promoDesc)}% de desconto nas ${num(f.promoMeses)} primeiras mensalidades${temDiag?` e diagnóstico por ${brl(num(f.valorDiag))}`:''}.</p>`;
+    if(f.promo&&f.abater&&m==='diag_acomp')valores+=`<p><b>Abatimento.</b> O valor pago pelo diagnóstico (${brl(num(f.valorDiag))}) é abatido das ${cm} mensalidades do compromisso mínimo, já considerado nos valores acima. Se a contratante cancelar antes de completar os ${cm} meses, perde o abatimento das mensalidades que ainda não venceram, e o valor do diagnóstico não é devolvido.</p>`;
+    if(m==='bonus')valores+=`<p><b>Diagnóstico como bônus.</b> Se a contratante cancelar antes de completar ${cm} meses, paga a diferença entre o valor de lançamento do diagnóstico e as mensalidades já pagas.</p>`;
+    const fp={pix:'à vista, via Pix, na contratação',pix2:'em 2 parcelas via Pix: a 1ª na contratação e a 2ª antes da reunião de entrega ou em 30 dias, o que vier primeiro',cartao:'no cartão de crédito, por link de pagamento'}[f.diagForma||'pix'];
+    valores+=`<p><b>Pagamento</b></p><ul>${temDiag&&m!=='bonus'?`<li>Diagnóstico: ${fp}. <b>O relatório e a reunião de entrega só são liberados depois do pagamento integral do diagnóstico.</b></li>`:''}${temMens?`<li>Acompanhamento: mensal, via ${esc(f.forma||'Pix')}, com vencimento no dia ${num(f.diaVenc)||10} de cada mês. As reuniões do mês acontecem depois do pagamento da mensalidade.</li>`:''}<li>Com mais de 10 dias de atraso, o acesso à ferramenta e as reuniões ficam suspensos até a regularização.</li>${f.pix?`<li>Chave Pix: ${esc(f.pix)}.</li>`:''}${h?`<li>Horas além do plano, quando combinadas, custam ${brl(h)} por hora.</li>`:''}</ul>
+    <p><b>Calendário de pagamentos</b></p><table><tr><th>Referência</th><th>Vencimento</th><th>Valor</th></tr>${(f.parcelas||[]).map(p=>`<tr><td>${esc(p.ref)}</td><td>${fd(p.venc)}</td><td>${brl(num(p.valor))}</td></tr>`).join('')}<tr class="tot"><td>Total</td><td></td><td>${brl((f.parcelas||[]).reduce((a,p)=>a+num(p.valor),0))}</td></tr></table>`}
+  const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Contrato · ${esc(f.ctEmpresa||CUR.empresa||'')}</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>body{font-family:Poppins,Arial,sans-serif;color:#25224F;font-size:10.5pt;line-height:1.55;max-width:760px;margin:0 auto;padding:36px 28px}
+h1{font-family:'Libre Baskerville',Georgia,serif;color:#2E2A7A;font-size:17pt;margin:0 0 4px}h2{font-family:'Libre Baskerville',Georgia,serif;color:#2E2A7A;font-size:12pt;margin:22px 0 6px;border-bottom:2px solid #F2601F;padding-bottom:3px}
+.sub{color:#6F6B90;margin:0 0 14px}table{border-collapse:collapse;width:100%;margin:8px 0}th,td{border:1px solid #E7DED6;padding:6px 8px;text-align:left;vertical-align:top}th{background:#F3ECE6}tr.tot td{font-weight:600}
+ul{margin:4px 0;padding-left:20px}.blank{color:#999}.box{display:inline-block;width:11px;height:11px;border:1.5px solid #2E2A7A;margin-right:6px;vertical-align:-1px}
+.sig{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:46px}.sig div{border-top:1px solid #25224F;padding-top:6px;font-size:9.5pt}
+.bar{position:sticky;top:0;background:#FBF6F1;padding:10px;margin:-36px -28px 20px;display:flex;gap:10px;justify-content:flex-end}.bar button{font:inherit;font-weight:600;background:#F2601F;color:#fff;border:0;border-radius:999px;padding:9px 20px;cursor:pointer}
+@media print{.bar{display:none}body{padding:0}}</style></head><body>
+<div class="bar"><button onclick="print()">Salvar em PDF ou imprimir</button></div>
+<h1>Contrato de prestação de serviços</h1><p class="sub">Mudiflow Estratégia Financeira</p>
+<h2>1. Partes</h2>
+<p><b>Contratada:</b> ${x(E.nome)}, Mudiflow Estratégia Financeira, CPF/CNPJ ${x(E.doc)}, e-mail ${x(E.email)}, WhatsApp ${x(E.whats)}.</p>
+<p><b>Contratante:</b> ${x(f.ctEmpresa||CUR.empresa)}, CNPJ/CPF ${x(f.ctDoc)}, representada por ${x(f.ctResp)}, CPF ${x(f.ctCpf)}, e-mail ${x(f.ctEmail||CUR.email)}, telefone ${x(f.ctFone)}.</p>
+<h2>2. O que está incluído</h2>
+${temDiag?`<p><b>Diagnóstico de Vendas</b></p><ul><li>Acesso individual, com login e senha, à ferramenta de Diagnóstico de Vendas da Mudiflow.</li><li>Conversa inicial para entender o negócio.</li><li>Revisão pela consultora de todas as informações preenchidas: análise SWOT, estoque ou serviços, custos, despesas, ponto de equilíbrio e meta de vendas.</li><li>Relatório em PDF com o plano de ação e as prioridades.</li><li>Reunião de entrega, online ou presencial, de até 1 hora.</li></ul>`:''}
+${temMens?`<p><b>Acompanhamento mensal${f.planoNome?' · plano '+esc(f.planoNome):''}</b></p><ul><li>${reu} reuni${reu>1?'ões':'ão'} por mês, de até ${durTxt} cada${reu>1?', sendo uma delas a de fechamento do mês':', no fechamento do mês'}, para revisar os números e ajustar o plano de ação.</li><li>Check-in mensal na ferramenta, com o resultado do mês e a evolução em gráfico.</li><li>Acesso às ferramentas liberadas no plano.</li><li>Reuniões não realizadas no mês não acumulam para o mês seguinte.</li></ul>`:''}
+<p>Não estão incluídos: serviços de contabilidade, apuração de impostos, assessoria jurídica e execução das ações pela consultora (por exemplo, criação de campanhas ou operação do sistema de vendas da contratante).</p>
+<h2>3. Prazos e responsabilidades</h2>
+${temDiag?`<ol><li>A contratante preenche a ferramenta e envia para revisão no prazo exibido na própria ferramenta.</li><li>A consultora revisa e libera o relatório em até ${num(E.prazoRev)||5} dias úteis após o envio para revisão${m!=='bonus'&&!par?', <b>desde que o diagnóstico esteja pago integralmente</b>. Sem o pagamento, o relatório fica retido até a quitação':''}.</li><li>A reunião de entrega acontece em até ${num(E.prazoEnt)||10} dias úteis após a liberação do relatório, em data combinada entre as partes.</li></ol><p>Se a contratante precisar de mais tempo para preencher, os prazos seguintes são ajustados na mesma proporção.</p>`:''}
+<p><b>Cabe à contratante:</b> fornecer informações verdadeiras e completas, cumprir os prazos de preenchimento e guardar o login e a senha de acesso.</p>
+<p><b>Cabe à consultora:</b> revisar os dados com cuidado técnico, cumprir os prazos de revisão e entrega e manter a confidencialidade das informações da contratante.</p>
+<h2>4. Valores, pagamento e cancelamento</h2>
+<p>Início: ${fd(f.inicio)}.</p>
+${valores}
+<p><b>Prazo e cancelamento</b></p><ul>${temMens?`<li>O acompanhamento tem compromisso mínimo de ${cm} meses${finFimComp(f)?`, até ${finFimComp(f)}`:''}. Depois disso, pode ser cancelado por qualquer parte com aviso de 30 dias.</li>`:''}${temDiag&&!par?'<li>O diagnóstico pode ser cancelado com devolução integral do valor até a contratante começar o preenchimento da ferramenta. Depois disso, não há devolução.</li>':''}${temDiag&&!par&&m!=='bonus'&&f.diagForma==='pix2'?'<li>Diagnóstico pago em 2 parcelas: se a contratante cancelar antes de começar o preenchimento, a 1ª parcela é devolvida e a 2ª não é cobrada. Se cancelar depois de começar o preenchimento, a 2ª parcela continua devida e vence na data do cancelamento. Em qualquer caso, o relatório e a reunião de entrega só acontecem depois do pagamento da 2ª parcela.</li>':''}<li>Em caso de cancelamento, o acesso à ferramenta é encerrado ao fim do período pago.</li></ul>
+<h2>5. Sigilo, dados e limites do serviço</h2>
+<p><b>Sigilo e proteção de dados.</b> As informações da contratante são usadas apenas para a prestação deste serviço e não são compartilhadas com terceiros. Elas ficam armazenadas em plataforma com acesso restrito por login e senha, visível somente para a contratante e a consultora. A contratante pode pedir, a qualquer momento, a exclusão dos seus dados e do seu acesso.</p>
+<p><b>Limites do serviço.</b> Os cálculos, relatórios e recomendações são estimativas baseadas nas informações fornecidas pela contratante e servem para apoiar as suas decisões. A consultora não garante resultados financeiros específicos, e as decisões e sua execução são de responsabilidade da contratante. O serviço não substitui a contabilidade nem a orientação tributária ou jurídica.</p>
+<p><b>Autorização de depoimento (opcional).</b> Marque se autoriza:</p>
+<p><span class="box"></span>Usar o meu depoimento sobre o serviço na divulgação da Mudiflow, com o nome da minha empresa.<br><span class="box"></span>Usar o meu depoimento sem identificar a empresa.<br><span class="box"></span>Usar exemplos do meu caso em conteúdos, sempre sem mostrar números reais da empresa.</p>
+<h2>6. Foro e assinaturas</h2>
+<p>As partes elegem o foro da comarca de ${x(E.cidade)} para resolver qualquer questão sobre este contrato.</p>
+<p>${esc((E.cidade||'').split('/')[0]||'')}${E.cidade?', ':''}${hoje.getDate()} de ${MES[hoje.getMonth()]} de ${hoje.getFullYear()}.</p>
+<div class="sig"><div>${x(E.nome)}<br>Mudiflow Estratégia Financeira (contratada)</div><div>${x(f.ctResp)}<br>${x(f.ctEmpresa||CUR.empresa)} (contratante)</div></div>
+</body></html>`;
+  const w=window.open('','_blank');if(!w){alert('O navegador bloqueou a janela do contrato. Permita pop-ups para este site e tente de novo.');return}
+  w.document.open();w.document.write(html);w.document.close();
 }
 function finGerar(){
   const f=FIN,m=f.modelo,pagas=(f.parcelas||[]).filter(p=>p.pago),novas=[];
-  if((m==='avulso'||m==='diag_acomp')&&num(f.valorDiag)>0&&!pagas.some(p=>p.ref==='Diagnóstico'))novas.push({ref:'Diagnóstico',venc:f.inicio||hojeISO(),valor:f.valorDiag,pago:''});
-  if(m==='diag_acomp'||m==='bonus'||m==='acomp'){
+  const par=m==='permuta';
+  if((m==='avulso'||m==='diag_acomp'||par)&&num(f.valorDiag)>0&&!pagas.some(p=>/^Diagnóstico/.test(p.ref))){const ini=f.inicio||hojeISO();
+    if(par)novas.push({ref:'Diagnóstico',venc:ini,valor:String(num(f.valorDiag)),pago:'',parceria:true});
+    else if(f.diagForma==='pix2'){const v=Math.round(num(f.valorDiag)*50)/100,[y,mm,dd]=ini.split('-').map(Number),d2=new Date(y,mm-1,dd+30);
+      novas.push({ref:'Diagnóstico 1/2 (Pix)',venc:ini,valor:String(v),pago:''},{ref:'Diagnóstico 2/2 (Pix)',venc:d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0'),valor:String(Math.round((num(f.valorDiag)-v)*100)/100),pago:''})}
+    else if(f.diagForma==='cartao')novas.push({ref:'Diagnóstico (cartão)',venc:ini,valor:String(num(f.valorCartao)||num(f.valorDiag)),pago:''});
+    else novas.push({ref:'Diagnóstico',venc:ini,valor:f.valorDiag,pago:''})}
+  if(m==='diag_acomp'||m==='bonus'||m==='acomp'||(par&&num(f.valorMensal)>0)){
     const n=Math.max(1,num(f.meses)||1),dia=Math.min(28,Math.max(1,num(f.diaVenc)||10)),[y,mm]=(f.inicio||hojeISO()).split('-').map(Number);
-    for(let i=0;i<n;i++){const d=new Date(y,mm-1+i,dia);const ref='Mensalidade '+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
-      if(!pagas.some(p=>p.ref===ref))novas.push({ref,venc:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0'),valor:f.valorMensal,pago:''})}
+    const dd0=+(f.inicio||hojeISO()).split('-')[2],off=dia<dd0?1:0;
+    for(let i=0;i<n;i++){const d=new Date(y,mm-1+i+off,dia);const ref='Mensalidade '+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+      if(!pagas.some(p=>p.ref===ref))novas.push({ref,venc:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0'),valor:String(finMensais(f)[i]??f.valorMensal),pago:'',...(par?{parceria:true}:{})})}
   }
   f.parcelas=pagas.concat(novas).sort((a,b)=>String(a.venc).localeCompare(String(b.venc)));
 }
 $('finMod').addEventListener('input',e=>{
   const id=(e.target.id||'').replace('fin_','');if(!FIN||!e.target.id.startsWith('fin_'))return;
   FIN[id]=e.target.value;if(id==='pix'){try{localStorage.setItem('mudiflow-pix',e.target.value)}catch(_){}}
-  if(id==='modelo'){renderFin()}finSave();
+  if(id==='planoIdx')finAplicaPlano();
+  if(id==='modelo'&&FIN.modelo==='permuta'&&PLAN){FIN.promo=false;FIN.valorDiag=String(num(PLAN.diagValor));if(FIN.planoIdx!==''&&FIN.planoIdx!=null)finAplicaPlano();FIN.meses=FIN.meses||PLAN.meses}
+  if(id==='diagForma'||id==='valorDiag')finCartao();
+  if(id==='modelo'||id==='planoIdx'||id==='diagForma'){renderFin()}finSave();
 });
 $('finMod').addEventListener('click',async e=>{
   const t=e.target,ds=t.dataset;
-  if(t.id==='finStart'){FIN=finNovo();renderFin();finSave();return}
+  if(t.id==='finStart'){FIN=finNovo();if(PLAN){FIN.valorDiag=String(num(PLAN.diagValor));FIN.meses=PLAN.meses;FIN.valorMensal='';FIN.diagForma='pix'}renderFin();finSave();return}
+  if(t.id==='finPromo'){finAplicaPromo(t.checked);renderFin();finSave();return}
+  if(t.id==='finContrato'){finContrato();return}
+  if(t.id==='finRecebido'){const desc=prompt('Qual serviço você recebeu? (ex.: Sessão de podologia)');if(!desc)return;const v=prompt('Valor do serviço (R$):','');if(!v)return;const d=prompt('Data (dd/mm/aaaa):',fmtData(hojeISO()));
+    let iso=hojeISO();if(d&&/^\d{2}\/\d{2}\/\d{4}$/.test(d.trim())){const [dd,mm,yy]=d.trim().split('/');iso=`${yy}-${mm}-${dd}`}
+    (FIN.recebidos=FIN.recebidos||[]).push({desc,valor:v,data:iso});FIN.recebidos.sort((a,b)=>String(a.data).localeCompare(String(b.data)));renderFin();finSave();return}
+  if(ds.rrm!==undefined){if(!confirm('Remover este serviço recebido?'))return;FIN.recebidos.splice(+ds.rrm,1);renderFin();finSave();return}
   if(!FIN)return;
   if(t.id==='finGerar'){if((FIN.parcelas||[]).some(p=>!p.pago)&&!confirm('Refazer as cobranças em aberto com os valores e datas atuais? As já pagas continuam.'))return;finGerar();renderFin();finSave();return}
   if(t.id==='finMais'){const ms=(FIN.parcelas||[]).filter(p=>/^Mensalidade/.test(p.ref)).map(p=>p.venc).sort();const base=ms.length?ms[ms.length-1]:(FIN.inicio||hojeISO());const [y,mm]=base.split('-').map(Number);const dia=Math.min(28,Math.max(1,num(FIN.diaVenc)||10));const d=new Date(y,mm-1+(ms.length?1:0),dia);
-    FIN.parcelas.push({ref:'Mensalidade '+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(),venc:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0'),valor:FIN.valorMensal,pago:''});renderFin();finSave();return}
+    FIN.parcelas.push({ref:'Mensalidade '+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(),venc:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0'),valor:FIN.valorMensal,pago:'',...(FIN.modelo==='permuta'?{parceria:true}:{})});renderFin();finSave();return}
   if(t.id==='finAvulsa'){const ref=prompt('Referência da cobrança (ex.: Reunião extra):');if(!ref)return;const v=prompt('Valor (R$):','');if(!v)return;FIN.parcelas.push({ref,venc:hojeISO(),valor:v,pago:''});FIN.parcelas.sort((a,b)=>String(a.venc).localeCompare(String(b.venc)));renderFin();finSave();return}
   if(ds.fpago!==undefined){FIN.parcelas[+ds.fpago].pago=hojeISO();renderFin();finSave();return}
   if(ds.fdes!==undefined){FIN.parcelas[+ds.fdes].pago='';renderFin();finSave();return}
@@ -2862,10 +3010,184 @@ function finCell(r){
 }
 function finTotais(){
   if(!FIN_ON)return '';const mes=hojeISO().slice(0,7);let rec=0,aber=0,atr=0;
-  Object.values(FIN_ALL).forEach(f=>(f.parcelas||[]).forEach(p=>{const v=num(p.valor);if(p.pago&&p.pago.slice(0,7)===mes)rec+=v;else if(!p.pago&&p.venc<hojeISO())atr+=v;else if(!p.pago&&p.venc&&p.venc.slice(0,7)===mes)aber+=v}));
+  Object.values(FIN_ALL).forEach(f=>(f.parcelas||[]).forEach(p=>{if(p.parceria)return;const v=num(p.valor);if(p.pago&&p.pago.slice(0,7)===mes)rec+=v;else if(!p.pago&&p.venc<hojeISO())atr+=v;else if(!p.pago&&p.venc&&p.venc.slice(0,7)===mes)aber+=v}));
   if(!rec&&!aber&&!atr)return '';
   return `<div class="fintot"><span>Recebido no mês <b>${brl(rec)}</b></span><span>A receber no mês <b>${brl(aber)}</b></span><span>Atrasado <b style="color:${atr?'var(--bad)':'inherit'}">${brl(atr)}</b></span></div>`;
 }
+
+/* ---------- Pagamentos (tela da cliente) ---------- */
+let PAG=null;
+async function loadPag(){PAG=null;if(ROLE!=='cliente')return;
+  try{const {data,error}=await sb.rpc('meus_pagamentos');if(!error&&data&&(data.parcelas||[]).length)PAG=data}catch(e){}
+  paintMods()}
+function renderPag(){const box=$('pagBody');if(!box||!PAG)return;const f=PAG,ps=f.parcelas||[];
+  const r=finResumo(f),prox=ps.filter(p=>!p.pago).sort((a,b)=>String(a.venc).localeCompare(String(b.venc)))[0];
+  const par=f.modelo==='permuta',tot=ps.reduce((a,p)=>a+num(p.valor),0),rcb=finRecebidos(f);
+  const mod={avulso:'Diagnóstico',diag_acomp:'Diagnóstico + Acompanhamento',bonus:'Acompanhamento com diagnóstico bônus',acomp:'Acompanhamento',permuta:'Parceria (permuta de serviços)'}[f.modelo]||'';
+  const fim=f.modelo!=='avulso'?finFimComp(f):'';
+  box.innerHTML=`<div class="box"><h3>O seu plano</h3><div class="pagplano"><span><b>${esc(mod)}${f.planoNome?' · '+esc(f.planoNome):''}</b></span>${num(f.reunioes)?`<span>${num(f.reunioes)} reuni${num(f.reunioes)>1?'ões':'ão'} por mês</span>`:''}${fim?`<span>Compromisso até ${fim}</span>`:''}</div></div>
+  <div class="box" style="margin-top:14px"><h3>${par?'Parceria':'Pagamentos'}</h3>
+    ${par?`<p class="sub" style="margin:0 0 6px;font-size:.86rem">Os valores são os valores cheios dos serviços da Mudiflow e são abatidos com os seus serviços.</p><div class="kpis finkpis"><div class="kpi"><div class="v">${brl(tot)}</div><div class="l">Valor dos serviços da Mudiflow</div></div><div class="kpi"><div class="v">${brl(rcb)}</div><div class="l">Seus serviços já prestados</div></div><div class="kpi"><div class="v">${brl(Math.max(0,tot-rcb))}</div><div class="l">Falta abater</div></div></div>`:`<div class="kpis finkpis"><div class="kpi"><div class="v">${brl(r.rec)}</div><div class="l">Pago</div></div><div class="kpi"><div class="v">${brl(r.aberto+r.atras)}</div><div class="l">A pagar</div></div><div class="kpi"><div class="v">${prox?fmtData(prox.venc):'—'}</div><div class="l">${prox?'Próximo vencimento: '+brl(num(prox.valor)):'Tudo pago'}</div></div></div>`}
+    <div class="tablewrap"><table class="fintab"><thead><tr><th>Referência</th><th>Vencimento</th><th>Valor</th><th>Situação</th></tr></thead><tbody>
+    ${ps.map(p=>{const s=finSit(p);return `<tr><td>${esc(p.ref)}</td><td>${fmtData(p.venc)}</td><td class="calc">${brl(num(p.valor))}</td><td><span class="badge ${s[0]==='good'?'aprovado':s[0]==='bad'?'':'rascunho'}" ${s[0]==='bad'?'style="color:var(--bad);background:rgba(208,68,55,.1)"':''}>${s[1]}</span></td></tr>`}).join('')}
+    </tbody></table></div>
+    ${par&&(f.recebidos||[]).length?`<p class="sub" style="margin:14px 0 4px;font-weight:600">Seus serviços registrados</p><div class="tablewrap"><table class="fintab"><thead><tr><th>Serviço</th><th>Data</th><th>Valor</th></tr></thead><tbody>${f.recebidos.map(x=>`<tr><td>${esc(x.desc)}</td><td>${fmtData(x.data)}</td><td class="calc">${brl(num(x.valor))}</td></tr>`).join('')}</tbody></table></div>`:''}
+    ${!par&&f.pix?`<div class="pagpix">Chave Pix: <code id="pagPix">${esc(f.pix)}</code><button type="button" class="ghost" id="pagCopy">Copiar chave</button></div>`:''}
+    <p class="sub" style="margin:12px 0 0;font-size:.82rem">${par?'A situação é atualizada pela Elaine conforme os serviços são prestados.':'Depois de pagar, mande o comprovante para a Elaine. A situação é atualizada quando ela confirmar o pagamento.'}</p>
+  </div>`}
+$('pagMod').addEventListener('click',async e=>{if(e.target.id!=='pagCopy')return;try{await navigator.clipboard.writeText(PAG.pix);e.target.textContent='Copiada'}catch(_){}});
+
+/* ---------- Planos e valores (só admin) ---------- */
+let PLAN=null, PLAN_UID=null, planT;
+function planPadrao(){return {
+  hora:'250', meses:'3',
+  diagHoras:'4', diagValor:'1000',
+  planos:[
+    {nome:'Essencial',reunioes:'1',duracao:'1',analise:'1',preparo:'0',desc:'0',valor:'500',obs:'Só o fechamento do mês'},
+    {nome:'Quinzenal',reunioes:'2',duracao:'1',analise:'1',preparo:'0,5',desc:'0',valor:'850',obs:'Uma das reuniões é o fechamento'},
+    {nome:'Semanal',reunioes:'4',duracao:'1',analise:'1',preparo:'1',desc:'10',valor:'1350',obs:'Uma das reuniões é o fechamento'}
+  ],
+  promo:{ativa:true,nome:'Black Friday',desc:'30',meses:'2',ate:'2026-11-30',vagas:'5',diagValor:'497',abater:true},
+  pag:{pix:true,pix2:true,cartao:false,parc:'3',taxa:'',divulgar:false,conta:false,cpf:false,teste:false},
+  eu:{nome:'Elaine Lima',doc:'',email:'',whats:'(11) 98023-0467',cidade:'São Paulo/SP',prazoRev:'5',prazoEnt:'10'}
+}}
+const planHoras=p=>num(p.reunioes)*num(p.duracao)+num(p.analise)+num(p.preparo);
+const planSug=(p,h)=>planHoras(p)*h*(1-num(p.desc)/100);
+const planValor=(p,h)=>num(p.valor)>0?num(p.valor):planSug(p,h);
+function planMeses(p){const P=PLAN,h=num(P.hora),pr=P.promo,pd=num(pr.desc)/100,pm=num(pr.meses),cm=Math.max(1,num(P.meses)||1),ab=pr.abater?num(pr.diagValor)/cm:0,v=planValor(p,h);
+  return Array.from({length:cm},(_,i)=>Math.max(0,(i<pm?v*(1-pd):v)-ab))}
+const fmtH=h=>(Math.round(h*10)/10).toLocaleString('pt-BR')+' h';
+async function loadPlanos(uid){
+  PLAN_UID=uid;PLAN=null;
+  try{const {data,error}=await sb.from('financeiro').select('dados').eq('user_id',uid).maybeSingle();
+    if(!error&&data&&data.dados&&data.dados.tabela)PLAN=data.dados.tabela}catch(e){}
+  if(!PLAN){try{PLAN=JSON.parse(localStorage.getItem('mudiflow-planos')||'null')}catch(e){}}
+  if(!PLAN)PLAN=planPadrao();
+  if(!PLAN.pag)PLAN.pag=planPadrao().pag;
+  if(!PLAN.eu)PLAN.eu=planPadrao().eu;
+}
+function planSave(){clearTimeout(planT);planT=setTimeout(async()=>{
+  try{localStorage.setItem('mudiflow-planos',JSON.stringify(PLAN))}catch(e){}
+  const m=$('plMsg');if(m)m.textContent='Salvando...';
+  let ok=false;
+  if(PLAN_UID){try{const {error}=await sb.from('financeiro').upsert({user_id:PLAN_UID,dados:{tabela:PLAN},atualizado_em:new Date().toISOString()},{onConflict:'user_id'});ok=!error}catch(e){}}
+  if($('plMsg'))$('plMsg').textContent=ok?'Salvo':'Salvo só neste computador. Não foi possível salvar online.';
+},600)}
+function planInp(path,val,extra=''){return `<input data-pl="${path}" value="${esc(val??'')}" inputmode="decimal" ${extra}>`}
+function renderPlanos(){
+  const box=$('planosBox');if(!box||!PLAN)return;
+  const P=PLAN,h=num(P.hora),pr=P.promo,pd=num(pr.desc)/100,pm=Math.max(0,num(pr.meses)),cm=Math.max(1,num(P.meses)||1);
+  const diagSug=num(P.diagHoras)*h;
+  const linhas=P.planos.map((p,i)=>{const hs=planHoras(p),sug=planSug(p,h),v=planValor(p,h),efet=hs?v/hs:0;
+    return `<tr>
+      <td><input data-pl="planos.${i}.nome" value="${esc(p.nome)}" class="plnome"><input data-pl="planos.${i}.obs" value="${esc(p.obs||'')}" class="plobs" placeholder="Observação"></td>
+      <td>${planInp(`planos.${i}.reunioes`,p.reunioes)}</td>
+      <td>${planInp(`planos.${i}.duracao`,p.duracao)}</td>
+      <td>${planInp(`planos.${i}.analise`,p.analise)}</td>
+      <td>${planInp(`planos.${i}.preparo`,p.preparo)}</td>
+      <td class="calc"><b>${fmtH(hs)}</b></td>
+      <td>${planInp(`planos.${i}.desc`,p.desc)}</td>
+      <td class="calc">${brl(sug)}</td>
+      <td>${planInp(`planos.${i}.valor`,p.valor,'class="plval"')}<small>${efet?brl(efet)+' por hora':''}</small></td>
+      <td class="acts"><button class="ghost del" data-plrm="${i}" aria-label="Remover plano">×</button></td></tr>`}).join('');
+  const dP=num(pr.diagValor),ab=pr.abater?dP/cm:0;
+  const promoRows=P.planos.map(p=>{const ms=planMeses(p);const tot=dP+ms.reduce((a,b)=>a+b,0);
+    return `<tr><td><b>${esc(p.nome)}</b></td><td class="calc">${brl(planValor(p,h))}</td>${ms.map(v=>`<td class="calc"><b style="color:var(--accent-ink)">${brl(v)}</b></td>`).join('')}<td class="calc">${brl(tot)}</td></tr>`}).join('');
+  box.innerHTML=`<div class="plhead"><h4>Planos e valores</h4><button type="button" class="ghost" id="plClose">Fechar</button></div>
+  <p class="sub" style="margin:0 0 14px">Só você vê. Os valores sugeridos somam reunião, análise e preparo, multiplicados pela sua hora.</p>
+  <div class="fields">
+    <label>Valor da sua hora (R$)${planInp('hora',P.hora)}<em>Também é o valor da hora extra.</em></label>
+    <label>Compromisso mínimo (meses)${planInp('meses',P.meses)}<em>Vale para todos os planos.</em></label>
+  </div>
+  <h5>Diagnóstico</h5>
+  <div class="plcards"><div class="plcard"><b>Diagnóstico com a sua revisão</b>
+      <div class="fields"><label>Horas de trabalho${planInp('diagHoras',P.diagHoras)}<em>Pela sua hora: ${brl(diagSug)}</em></label><label>Valor cobrado (R$)${planInp('diagValor',P.diagValor)}<em>${num(P.diagHoras)?brl(num(P.diagValor)/num(P.diagHoras))+' por hora':''}</em></label></div>
+      <ul><li class="y">A cliente preenche a ferramenta</li><li class="y">Você revisa os dados e monta as soluções e o plano de ação</li><li class="y">Relatório em PDF e reunião de entrega</li></ul></div></div>
+  <h5>Acompanhamento mensal</h5>
+  <div class="tablewrap"><table class="pltab"><thead><tr><th>Plano</th><th>Reuniões no mês</th><th>Horas por reunião</th><th>Análise (h)</th><th>Preparo (h)</th><th>Total</th><th>Desconto (%)</th><th>Pela sua hora</th><th>Valor cobrado (R$)</th><th></th></tr></thead>
+  <tbody>${linhas||'<tr><td colspan="10" class="empty">Nenhum plano ainda.</td></tr>'}</tbody></table></div>
+  <div class="acrow"><button type="button" class="ghost" id="plAdd">Adicionar plano</button><span class="sub" style="font-size:.8rem;margin:0">Deixe "Valor cobrado" vazio para usar o valor pela sua hora.</span></div>
+  <h5>Promoção</h5>
+  <div class="fields">
+    <label class="plchk"><input type="checkbox" data-plc="promo.ativa" ${pr.ativa?'checked':''}> Promoção ativa</label>
+    <label>Nome<input data-pl="promo.nome" value="${esc(pr.nome||'')}"></label>
+    <label>Desconto no acompanhamento (%)${planInp('promo.desc',pr.desc)}</label>
+    <label>Por quantos meses${planInp('promo.meses',pr.meses)}</label>
+    <label>Válida até<input type="date" data-pl="promo.ate" value="${esc(pr.ate||'')}"></label>
+    <label>Vagas${planInp('promo.vagas',pr.vagas)}</label>
+    <label>Diagnóstico na promoção (R$)${planInp('promo.diagValor',pr.diagValor)}<em>${num(P.diagValor)&&dP?Math.round((1-dP/num(P.diagValor))*100)+'% de desconto sobre '+brl(num(P.diagValor)):''}</em></label>
+    <label class="plchk"><input type="checkbox" data-plc="promo.abater" ${pr.abater?'checked':''}> Abater o diagnóstico nas mensalidades (dividido em ${cm} meses)</label>
+  </div>
+  ${pr.ativa?`<div class="tablewrap"><table class="pltab"><thead><tr><th>Plano</th><th>Mensalidade normal</th>${Array.from({length:cm},(_,i)=>`<th>${i+1}º mês</th>`).join('')}<th>Total pago (diagnóstico + ${cm} meses)</th></tr></thead><tbody>${promoRows}</tbody></table></div>
+  <p class="sub" style="font-size:.8rem;margin:8px 0 0">${pr.abater?`O diagnóstico (${brl(dP)}) é pago antes e abatido em ${cm} vezes de ${brl(ab)}. Se a cliente cancelar antes, perde o abatimento dos meses que faltam. `:''}Quem não fechar o acompanhamento paga só o diagnóstico.</p>
+  <div class="acrow"><button type="button" id="plMsgPromo">Gerar mensagem da oferta</button></div>`:''}
+  <h5>Formas de pagamento do diagnóstico</h5>
+  ${planPag()}
+  <h5>Seus dados para o contrato</h5>
+  <div class="fields">
+    <label>Nome<input data-pl="eu.nome" value="${esc(P.eu.nome||'')}"></label>
+    <label>CPF ou CNPJ<input data-pl="eu.doc" value="${esc(P.eu.doc||'')}"></label>
+    <label>E-mail<input data-pl="eu.email" value="${esc(P.eu.email||'')}"></label>
+    <label>WhatsApp<input data-pl="eu.whats" value="${esc(P.eu.whats||'')}"></label>
+    <label>Cidade/UF do foro<input data-pl="eu.cidade" value="${esc(P.eu.cidade||'')}"></label>
+    <label>Prazo da sua revisão (dias úteis)${planInp('eu.prazoRev',P.eu.prazoRev)}</label>
+    <label>Prazo da reunião de entrega (dias úteis)${planInp('eu.prazoEnt',P.eu.prazoEnt)}</label>
+  </div>
+  <div class="acrow" style="justify-content:space-between"><span id="plMsg" class="sub" style="font-size:.82rem;margin:0"></span><button type="button" class="ghost" id="plReset">Voltar aos valores combinados</button></div>`;
+}
+function planPag(){
+  const g=PLAN.pag,dv=num(PLAN.promo.ativa?PLAN.promo.diagValor:PLAN.diagValor),n=Math.max(1,num(g.parc)||1),tx=num(g.taxa)/100;
+  const vc=tx>0&&tx<1?dv/(1-tx):0;
+  const ck=(k,t)=>`<label class="plchk"><input type="checkbox" data-plc="pag.${k}" ${g[k]?'checked':''}> ${t}</label>`;
+  return `<div class="plcards">
+    <div class="plcard"><b>Pix</b>
+      ${ck('pix',`À vista: ${brl(dv)}`)}
+      ${ck('pix2',`Em 2x: 2 de ${brl(dv/2)}`)}
+      <ul><li class="y">1ª parcela na contratação, antes de liberar o acesso</li><li class="y">2ª antes da reunião de entrega ou em 30 dias, o que vier primeiro</li><li class="y">Sem taxa. Lance as parcelas no Financeiro como cobranças avulsas</li></ul></div>
+    <div class="plcard"><b>Cartão de crédito (link de pagamento)</b>
+      ${ck('cartao','Aceitar cartão, só para quem pedir')}
+      <div class="fields"><label>Parcelas no máximo${planInp('pag.parc',g.parc)}</label><label>Taxa total da plataforma (%)${planInp('pag.taxa',g.taxa)}<em>Veja na plataforma depois de abrir a conta.</em></label></div>
+      ${vc?`<p class="sub" style="margin:10px 0 0;font-size:.84rem">Para receber ${brl(dv)}, cobre <b>${brl(vc)}</b> no cartão (${n}x de ${brl(vc/n)}).</p>`:''}
+      ${ck('divulgar','Divulgar o cartão nos posts e na mensagem da oferta')}
+      <p class="sub" style="margin:12px 0 6px;font-size:.8rem;font-weight:600">Antes de aceitar cartão</p>
+      ${ck('conta','Abrir conta no Mercado Pago, InfinitePay ou PagSeguro')}
+      ${ck('cpf','Confirmar que a conta aceita CPF (pessoa física)')}
+      ${ck('teste','Gerar um link de teste de R$ 1 e ver quanto cai')}
+    </div></div>
+  <ul class="plnao"><li>Não oferecer boleto (tem custo e demora para compensar)</li><li>Não parcelar em mais de 3 vezes</li></ul>
+  <p class="sub" style="font-size:.8rem;margin:8px 0 0">Em qualquer forma de pagamento, o abatimento nas mensalidades continua igual.</p>`;
+}
+function planMsgOferta(){
+  const P=PLAN,h=num(P.hora),pr=P.promo,pd=num(pr.desc)/100,pm=num(pr.meses),cm=Math.max(1,num(P.meses)||1),dP=num(pr.diagValor);
+  const dt=pr.ate?fmtData(pr.ate).slice(0,5):'';
+  const linhas=P.planos.map(p=>{const v=planValor(p,h);return `• ${p.nome}${p.obs?' ('+p.obs.toLowerCase()+')':''}: de ${brl(v)} por ${brl(v*(1-pd))} por mês`}).join('\n');
+  return `${pr.nome||'Promoção'} na Mudiflow!\n\n`
+    +`✔ Diagnóstico de Vendas completo, com a minha revisão, plano de ação e reunião de entrega: de ${brl(num(P.diagValor))} por ${brl(dP)}.\n\n`
+    +`✔ Acompanhamento mensal com ${num(pr.desc)}% de desconto nos ${pm} primeiros meses:\n${linhas}\n\n`
+    +(pr.abater?`E se você fechar o acompanhamento, o valor do diagnóstico volta para você: é abatido das mensalidades.\n\n`:'')
+    +planPagTxt()
+    +`Compromisso mínimo de ${cm} meses.${num(pr.vagas)?` Só ${num(pr.vagas)} vagas`:''}${dt?`, válido até ${dt}`:''}.\n\nQuer garantir a sua? Me chama aqui!`;
+}
+function planPagTxt(){const g=PLAN.pag||{},dv=num(PLAN.promo.diagValor),f=[];
+  if(g.pix)f.push('à vista no Pix');if(g.pix2)f.push(`em 2x de ${brl(dv/2)} no Pix`);
+  if(g.cartao&&g.divulgar){const tx=num(g.taxa)/100,n=Math.max(1,num(g.parc)||1);f.push(tx>0&&tx<1?`em até ${n}x de ${brl(dv/(1-tx)/n)} no cartão`:`em até ${n}x no cartão`)}
+  return f.length?`Diagnóstico ${(f.length>1?f.slice(0,-1).join(', ')+' ou '+f[f.length-1]:f[0])}.\n\n`:''}
+function planSet(path,val){const k=path.split('.');let o=PLAN;for(let i=0;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=val}
+$('planosBox').addEventListener('input',e=>{const t=e.target;
+  if(t.dataset.pl){planSet(t.dataset.pl,t.value);const pos=t.selectionStart,key=t.dataset.pl;renderPlanos();const n=document.querySelector(`[data-pl="${key}"]`);if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}planSave()}
+  if(t.dataset.plc){planSet(t.dataset.plc,t.checked);renderPlanos();planSave()}
+});
+$('planosBox').addEventListener('click',e=>{const t=e.target;
+  if(t.id==='plClose'){$('planosBox').hidden=true;return}
+  if(t.id==='plAdd'){PLAN.planos.push({nome:'Novo plano',reunioes:'1',duracao:'1',analise:'1',preparo:'0',desc:'0',valor:'',obs:''});renderPlanos();planSave();return}
+  if(t.dataset.plrm!==undefined){if(!confirm('Remover este plano?'))return;PLAN.planos.splice(+t.dataset.plrm,1);renderPlanos();planSave();return}
+  if(t.id==='plReset'){if(!confirm('Voltar todos os campos aos valores combinados?'))return;PLAN=planPadrao();renderPlanos();planSave();return}
+  if(t.id==='plMsgPromo'){const msg=planMsgOferta();$('credTitle').textContent='Mensagem da oferta, pronta para enviar:';$('credText').textContent=msg;$('credCopy').textContent='Copiar mensagem';
+    $('credWa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');$('newClient').hidden=true;$('credBox').hidden=false;$('credBox').scrollIntoView({behavior:'smooth',block:'center'});return}
+});
+$('btnPlanos').onclick=async()=>{const b=$('planosBox');if(!b.hidden){b.hidden=true;return}
+  if(!PLAN){const {data}=await sb.auth.getSession();await loadPlanos(data&&data.session&&data.session.user.id)}
+  $('newClient').hidden=true;$('credBox').hidden=true;b.hidden=false;renderPlanos();b.scrollIntoView({behavior:'smooth',block:'start'})};
 
 /* ---------- Calculadora de custos (fichas guardadas no diagnóstico do cliente) ---------- */
 const cuSv=()=>S.tipo==='servico';
@@ -3064,7 +3386,7 @@ async function startSession(session){
     $('clientName').placeholder='Nome da empresa do cliente';
     const {data,error}=await sb.from('diagnosticos').select(COLS());
     LIST=error?[]:data;
-    document.body.classList.add('noclient');CUR=null;renderAdmin();loadAcompPanel();loadFinPanel();
+    document.body.classList.add('noclient');CUR=null;renderAdmin();loadAcompPanel();loadFinPanel();loadPlanos(session.user.id);
   }else{
     $('clientName').parentNode.firstChild.textContent='Sua empresa';
     const {data,error}=await sb.from('diagnosticos').select('*').eq('user_id',session.user.id).maybeSingle();
