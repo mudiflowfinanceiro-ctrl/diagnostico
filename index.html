@@ -289,7 +289,7 @@ body:not([data-mod="acomp"]) #acomp{display:none!important}
 body:not([data-mod="calc"]) #calcMod{display:none!important}
 body.nodiag .client{display:none!important}
 body[data-mod="none"] .hero p{display:none}
-body.noclient .mods,body.noclient #calcMod,body.noclient .modbox{display:none!important}
+body.noclient .mods,body.noclient #calcMod,body.noclient #custoMod,body.noclient .modbox{display:none!important}
 .calcmod{margin-top:22px}
 .calcmod h2{font-family:var(--serif);color:var(--brand);font-size:1.5rem;margin:0 0 6px}
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:14px}
@@ -338,6 +338,45 @@ body:not([data-mod="fin"]) #finMod{display:none!important}
 .finmini{display:block;font-size:.74rem;color:var(--accent-ink);margin-top:2px}.finmini.bad{color:var(--bad);font-weight:600}
 .fintot{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.84rem;color:var(--muted);margin:-2px 0 12px}.fintot b{color:var(--brand)}
 .mods button.fin{background:var(--soft)}
+.custoq{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;border-left:4px solid var(--accent)}
+.custoq .q{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.custoq .q b{color:var(--brand);font-size:.98rem}
+.custoq .opts{display:flex;gap:6px;flex-wrap:wrap}
+.custoq .opts button{background:var(--surface);color:var(--brand);border:1.5px solid var(--line);padding:7px 16px;font-size:.84rem}
+.custoq .opts button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.custoq #custoQMsg{margin:0;font-size:.88rem;color:var(--ink)}
+.custoq #custoQMsg[hidden]{display:none}
+.custoq a.go,.custoq button.go{background:none;border:none;color:var(--accent-ink);padding:0;font-weight:600;text-decoration:underline;font-size:.88rem;cursor:pointer}
+body:not([data-mod="custo"]) #custoMod{display:none!important}
+.cuhead{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:14px}
+.cuhead label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted)}
+.cuhead select{min-width:240px}
+.cuhead button[hidden]{display:none}
+.cuhint{font-size:.8rem;margin:0 0 10px}
+.cugrid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:14px;align-items:start;margin-top:14px}
+.cuaside{font-size:.86rem;border-left:4px solid var(--warn)}
+.cuaside h3{margin-bottom:6px}
+.cuaside p.sub{font-size:.8rem;margin:0 0 12px}
+.cuaside b{display:block;color:var(--brand);font-size:.86rem;margin-top:8px}
+.cuaside span.sub{display:block;font-size:.76rem}
+.cuaside ul{margin:6px 0 4px;padding-left:18px}
+.cuaside li{margin:2px 0}
+.cumodelo{margin:12px 0 0;font-size:.84rem}
+.cutab td.empty{font-size:.84rem;padding:10px 6px}
+@media (max-width:860px){.cugrid{grid-template-columns:1fr}}
+.cutab td input{min-width:72px}
+.cutab td.name{width:40%}
+.cutab td.name input{min-width:230px}
+.cuhero{margin-top:14px}
+.cubars{display:grid;gap:8px;margin-top:8px}
+.cubars div{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:.8rem;color:rgba(255,255,255,.88)}
+.cubars b{font-weight:600;color:#fff}
+.cubars i{grid-column:1/-1;display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.85);min-width:2px}
+.cubars small{display:none}
+.cusend{margin-top:14px;border-left:4px solid var(--good)}
+.cusendrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.cusendrow select{max-width:420px}
+.cumsg{margin:10px 0 0;font-size:.86rem;color:var(--good)}
 .lock{text-align:left}
 .lock h3{margin-bottom:6px}
 .lock p{color:var(--muted);margin:0 0 14px;max-width:60ch}
@@ -367,7 +406,7 @@ body:not([data-mod="fin"]) #finMod{display:none!important}
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 25</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 27</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -522,6 +561,16 @@ body:not([data-mod="fin"]) #finMod{display:none!important}
     </div>
     <div class="navbtns" style="justify-content:flex-end"><button class="ghost" id="mc_reset">Voltar aos valores de exemplo</button></div>
   </section>
+  <section class="calcmod customod" id="custoMod">
+    <h2 id="cuTitle">Calculadora de custos</h2>
+    <p class="sub" id="cuSub">Descubra quanto custa, de verdade, cada unidade que você vende: materiais, mão de obra, embalagem e o que mais entra na produção. Depois, é só levar o custo para a etapa 2 do diagnóstico.</p>
+    <div class="box cuhead">
+      <label>Ficha<select id="cuSel"></select></label>
+      <button class="ghost" id="cuNova">Nova ficha</button>
+      <button class="ghost" id="cuDel">Excluir ficha</button>
+    </div>
+    <div id="cuBody"></div>
+  </section>
   <section class="finmod noprint" id="finMod">
     <h2>Financeiro</h2>
     <p class="sub">O que foi combinado com esta cliente e os pagamentos. Só você vê esta área.</p>
@@ -553,6 +602,10 @@ body:not([data-mod="fin"]) #finMod{display:none!important}
   <section class="panel" id="p2">
     <h2>Estoque e custos</h2>
     <p class="sub">Liste os produtos com quantidade, custo de compra/produção, preço de venda, desconto médio concedido e quanto vende por mês. A ferramenta calcula margem, cobertura e a curva ABC.</p>
+    <div class="box custoq" id="custoQ">
+      <div class="q"><b id="custoQTitle">Você sabe calcular o custo de cada produto?</b><span class="opts"><button type="button" data-sc="sim">Sim</button><button type="button" data-sc="mais">Mais ou menos</button><button type="button" data-sc="nao">Não</button></span></div>
+      <p id="custoQMsg" hidden></p>
+    </div>
     <div class="box">
       <div class="tablewrap"><table>
         <thead><tr><th>Produto</th><th>Qtd em estoque</th><th>Custo unit. (R$)</th><th>Preço venda (R$)</th><th>Desconto (%)</th><th>Vendas/mês (un.)</th><th>Custo em estoque</th><th>Margem real</th><th>Cobertura</th><th>ABC</th><th></th></tr></thead>
@@ -1112,7 +1165,7 @@ document.querySelectorAll('nav.steps button').forEach(b=>b.onclick=()=>go(+b.dat
 $('prev').onclick=()=>go(cur-1);$('next').onclick=()=>go(cur+1);
 
 /* ---------- Cliente ---------- */
-function renderAll(){$('clientName').value=S.client;paintRamo();renderSwot();renderVars();renderPEFields();renderFix();renderStock();renderProd();fillSaved();if(cur===6){renderReport();addReportNotes()}paintLock();applyTipo()}
+function renderAll(){$('clientName').value=S.client;paintRamo();renderSwot();renderVars();renderPEFields();renderFix();renderStock();renderProd();fillSaved();if(cur===6){renderReport();addReportNotes()}paintLock();applyTipo();paintCustoQ()}
 $('clientName').oninput=e=>{S.client=e.target.value;save()};
 
 /* ---------- Acesso online ---------- */
@@ -1435,6 +1488,13 @@ function reviewData(){
   // 12. Estratégia (SWOT)
   const sh=startHere(), risco=crossStrategies().find(c=>c.k.startsWith('Risco'));
   if(sh)add(1,1,'Direção estratégica',sh.replace(/<[^>]+>/g,''),risco&&risco.r.length?`<ul>${risco.r.slice(0,2).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'',0);
+
+  // Custos não confiáveis
+  if(S.sabeCusto==='nao'||S.sabeCusto==='mais'){
+    const lib=CUR&&modsOf(CUR).includes('calc_custo');
+    add(2,2,'Custos possivelmente estimados',`A cliente respondeu "${S.sabeCusto==='nao'?'Não':'Mais ou menos'}" quando perguntamos se sabe calcular os custos. Margem, preço mínimo e meta dependem desse número.`,
+      `<ul><li>${lib?'A Calculadora de custos já está liberada: confira se ela montou as fichas dos itens principais.':'Libere a Calculadora de custos (no aviso da etapa 2 ou em Módulos e plano).'}</li><li>Na reunião, confira com ela o custo dos 3 itens que mais vendem antes de aprovar.</li></ul>`,5e8,'Conferir antes de aprovar');
+  }
 
   // Dados que faltam
   const swotN=['F','Fr','O','A'].reduce((s,q)=>s+labelsOf(q).length,0);
@@ -1900,8 +1960,8 @@ function calcMcu(){
 }
 
 /* ---------- Módulos liberados por cliente ---------- */
-const MODS=[['diagnostico','Diagnóstico de Vendas','diag'],['acompanhamento','Acompanhamento mensal','acomp'],['calc_mcu','Calculadora de margem','calc']];
-const PLANOS=[['Diagnóstico',['diagnostico','calc_mcu']],['Diagnóstico + Acompanhamento',['diagnostico','acompanhamento','calc_mcu']],['Só calculadora',['calc_mcu']]];
+const MODS=[['diagnostico','Diagnóstico de Vendas','diag'],['acompanhamento','Acompanhamento mensal','acomp'],['calc_mcu','Calculadora de margem','calc'],['calc_custo','Calculadora de custos','custo']];
+const PLANOS=[['Diagnóstico',['diagnostico','calc_mcu']],['Diagnóstico + Acompanhamento',['diagnostico','acompanhamento','calc_mcu']],['Só calculadora de margem',['calc_mcu']]];
 let MOD_ON=true;   // fica falso se o script 5 ainda não foi rodado
 let RAMO_ON=true;
 let PRAZO_ON=true;
@@ -1913,6 +1973,7 @@ function setMod(code){
   $('modNav').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.mod===code));
   if(code==='acomp')renderAcomp();
   if(code==='calc')mcLoad();
+  if(code==='custo')renderCusto();
 }
 function paintMods(){
   if(!CUR)return;
@@ -1951,7 +2012,7 @@ $('modBox').addEventListener('click',async e=>{
     e.target.disabled=false;
     if(error){$('modMsg').textContent='Não foi possível salvar. Tente de novo.';return}
     CUR.modulos=mods;const i=LIST.findIndex(r=>r.user_id===CUR.user_id);if(i>-1)LIST[i].modulos=mods;
-    $('modBox').hidden=true;paintMods();renderAdmin();
+    $('modBox').hidden=true;paintMods();renderAdmin();paintCustoQ();
   }
 });
 
@@ -2208,6 +2269,171 @@ function finTotais(){
   if(!rec&&!aber&&!atr)return '';
   return `<div class="fintot"><span>Recebido no mês <b>${brl(rec)}</b></span><span>A receber no mês <b>${brl(aber)}</b></span><span>Atrasado <b style="color:${atr?'var(--bad)':'inherit'}">${brl(atr)}</b></span></div>`;
 }
+
+/* ---------- Calculadora de custos (fichas guardadas no diagnóstico do cliente) ---------- */
+const cuSv=()=>S.tipo==='servico';
+const CU_FIXOS_SERV=['Aluguel da sala','Luz e água','Salário fixo (recepção ou profissional com salário mensal)','Manutenção de equipamentos','Seu pró-labore'];
+const CU_MODELOS={
+  'Confecção e moda':{mats:['Tecido principal','Forro ou entretela','Linha','Aviamentos (botão, zíper, elástico)','Etiqueta da marca e de composição','Tag'],
+    mos:[['Costura (oficina ou costureira por peça)','fixo'],['Corte','fixo'],['Estampa ou bordado','fixo']],outros:['Embalagem (saco ou caixa)','Frete de compra do tecido (por peça)'],
+    fixos:['Aluguel do ateliê ou da loja','Salário fixo de quem não recebe por peça','Energia das máquinas','Seu pró-labore'],
+    vars:['Impostos sobre a venda','Taxa de cartão','Comissão de venda em %'],dica:'Produz várias peças iguais de uma vez? Coloque os materiais do lote inteiro e, em cima, quantas peças ele rende.'},
+  'Loja e varejo':{mats:['Produto (preço da caixa ou do pacote)'],mos:[],outros:['Frete da compra (por unidade)','Imposto pago na compra (ST ou DIFAL), se houver','Sacola ou embalagem','Etiqueta ou tag'],
+    fixos:['Aluguel da loja','Salários fixos','Luz, água e internet','Seu pró-labore'],vars:['Impostos sobre a venda','Taxa de cartão','Comissão de vendedor em %'],
+    dica:'Comprou uma caixa com 12 unidades por R$ 120? Em "Quanto paga" coloque 120, em "Quanto vem" 12 e em "Quanto usa" 1.'},
+  'E-commerce':{mats:['Produto (preço da caixa ou do pacote)'],mos:[],outros:['Caixa ou envelope de envio','Plástico bolha, papel de seda e fita','Etiqueta de envio e impressão','Cartão ou brinde','Frete da compra (por unidade)'],
+    fixos:['Plataforma da loja virtual (mensalidade)','Salários fixos','Seu pró-labore'],vars:['Impostos sobre a venda','Taxa do marketplace ou do meio de pagamento','Frete grátis que você paga ao cliente'],
+    dica:'Comprou uma caixa com 12 unidades por R$ 120? Em "Quanto paga" coloque 120, em "Quanto vem" 12 e em "Quanto usa" 1.'},
+  'Alimentação':{mats:['Farinha','Açúcar','Ovos','Leite, manteiga ou creme','Recheio ou cobertura','Outros ingredientes'],mos:[['Ajudante ou confeiteira (pela produção)','hora']],
+    outros:['Embalagem','Etiqueta','Gás e energia do forno (estimativa por receita)'],fixos:['Aluguel da cozinha ou loja','Salários fixos','Seu pró-labore'],
+    vars:['Impostos sobre a venda','Taxa de cartão','Taxa do aplicativo de entrega'],dica:'Preencha a receita inteira e, em cima, quantas unidades ela rende. Ex.: 1 kg de farinha por R$ 6, usa 0,5 kg.'},
+  'Beleza e estética':{mats:['Cremes, óleos ou produtos aplicados','Produto do procedimento (cera, esmalte, tinta, ácido)','Descartáveis (luva, máscara, touca, lençol)','Algodão, gaze ou lenço','Esterilização dos instrumentos (custo por uso)'],
+    mos:[['Profissional (comissão ou valor por atendimento)','fixo'],['Profissional pago por hora','hora']],outros:['Lavanderia de toalhas (por atendimento)'],
+    fixos:CU_FIXOS_SERV,vars:['Impostos sobre o serviço','Taxa de cartão','Comissão em % sobre o preço'],
+    dica:'Para produtos que rendem vários atendimentos: um creme de R$ 80 que dá para 40 atendimentos vira "Quanto paga" 80, "Quanto vem" 40 e "Quanto usa" 1.'},
+  'Saúde e clínicas':{mats:['Lâminas, brocas ou bisturi (desgaste por atendimento)','Luvas, máscara, touca e avental','Antisséptico e álcool','Gaze, algodão e curativos','Cremes, pomadas e medicamentos tópicos','Esterilização (envelope e autoclave, por uso)','Órtese ou material específico do procedimento'],
+    mos:[['Profissional (comissão ou valor por atendimento)','fixo'],['Profissional pago por hora','hora']],outros:['Deslocamento (atendimento a domicílio)'],
+    fixos:CU_FIXOS_SERV.concat(['Conselho de classe, alvará e seguro']),vars:['Impostos sobre o serviço','Taxa de cartão','Comissão em % sobre o preço'],
+    dica:'Para itens que rendem vários atendimentos: uma caixa de 100 luvas por R$ 45, usando 2 por atendimento, vira "Quanto paga" 45, "Quanto vem" 100 e "Quanto usa" 2.'},
+  'Serviços':{mats:['Materiais usados no serviço'],mos:[['Profissional pago por hora','hora']],outros:['Deslocamento ou combustível','Ferramentas de desgaste (por serviço)'],
+    fixos:['Aluguel','Salários fixos','Luz, água e internet','Seu pró-labore'],vars:['Impostos sobre o serviço','Taxa de cartão','Comissão em %'],dica:''}
+};
+function cuModelo(){if(CU_MODELOS[S.ramo])return [S.ramo,CU_MODELOS[S.ramo]];return null}
+function cuGenerico(){const sv=cuSv();return {mats:[''],mos:[[sv?'Profissional (comissão ou valor por atendimento)':'Mão de obra paga pela produção','fixo']],outros:[sv?'Descartáveis':'Embalagem'],
+  fixos:sv?CU_FIXOS_SERV:['Aluguel','Salários fixos','Luz, água e internet','Seu pró-labore'],vars:['Impostos sobre a venda','Taxa de cartão','Comissão em %'],dica:''}}
+function cuNovaFicha(){const md=(cuModelo()||[null,cuGenerico()])[1];
+  return {nome:'',rend:'1',mats:md.mats.map(n=>({nome:n,preco:'',emb:'',usa:''})),mos:md.mos.map(([n,t])=>({nome:n,fixo:'',hora:'',min:'',modo:t})),outros:md.outros.map(n=>({nome:n,valor:''}))}}
+function cuVazia(f){return !f.mats.some(m=>m.preco||m.usa)&&!f.mos.some(m=>m.fixo||m.hora)&&!f.outros.some(o=>o.valor)}
+function cuData(){S.custos=S.custos||{fichas:[],sel:0};if(!S.custos.fichas.length)S.custos.fichas.push(cuNovaFicha());if(S.custos.sel>=S.custos.fichas.length)S.custos.sel=0;
+  S.custos.fichas.forEach(f=>{if(!f.mos){f.mos=f.mo?[{nome:'Mão de obra',fixo:f.mo,hora:'',min:'',modo:'fixo'}]:[];delete f.mo}});return S.custos}
+const cuMoV=m=>num(m.fixo)>0?num(m.fixo):num(m.hora)*num(m.min)/60;
+function cuCalc(f){
+  const mats=f.mats.map(m=>{const p=num(m.preco),e=num(m.emb),u=num(m.usa);return e>0?p/e*u:(u?p*u:0)});
+  const mos=f.mos.map(cuMoV);
+  const mat=mats.reduce((s,v)=>s+v,0),mo=mos.reduce((s,v)=>s+v,0),out=f.outros.reduce((s,o)=>s+num(o.valor),0),rend=num(f.rend)||1;
+  const tot=mat+mo+out;return {mats,mos,mat,mo,out,tot,rend,un:tot/rend};
+}
+let cuSaveT;function cuSave(){clearTimeout(cuSaveT);cuSaveT=setTimeout(save,300)}
+function renderCusto(){
+  const C=cuData(),f=C.fichas[C.sel],sv=cuSv(),M=cuModelo(),md=(M||[null,cuGenerico()])[1];
+  $('cuSel').innerHTML=C.fichas.map((x,i)=>`<option value="${i}" ${i===C.sel?'selected':''}>${esc(x.nome||(sv?'Serviço sem nome':'Produto sem nome'))}</option>`).join('');
+  $('cuDel').hidden=C.fichas.length<2;
+  const un=sv?'atendimento':'lote';
+  $('cuBody').innerHTML=`${M&&cuVazia(f)&&!f.modelo?'':''}
+  <div class="cugrid"><div>
+  <div class="box">
+    <div class="fields">
+      <label>${sv?'Serviço':'Produto'}<input data-cf="nome" value="${esc(f.nome)}" placeholder="${sv?'Ex.: Podologia completa':'Ex.: Vestido linho'}"></label>
+      ${sv?'':`<label>Quantas unidades o lote rende?<input data-cf="rend" inputmode="decimal" value="${esc(f.rend)}"><em>${S.ramo==='Alimentação'?'Uma receita rende 20 bolos? Coloque 20.':'Faz 1 peça por vez? Deixe 1. Produz 10 peças iguais de uma vez? Coloque 10.'}</em></label>`}
+    </div>
+    ${M?`<p class="sub cumodelo">Itens sugeridos para <b>${esc(M[0])}</b>. Preencha só os que você usa e apague ou acrescente o que precisar.${cuVazia(f)?'':''}</p>`:''}
+  </div>
+  <div class="box" style="margin-top:14px"><h3>Materiais ${sv?'usados em cada atendimento':'do lote'}</h3>
+    <p class="sub cuhint">${esc(md.dica||'Coloque quanto você paga, quanto vem na embalagem e quanto usa. A ferramenta faz a conta proporcional. Ex.: tecido de R$ 40 o metro, vem 1 m, usa 1,5 m = R$ 60.')}</p>
+    <div class="tablewrap"><table class="cutab"><thead><tr><th>Material</th><th>Quanto paga (R$)</th><th>Quanto vem na embalagem</th><th>Quanto usa</th><th>Custo</th><th></th></tr></thead><tbody>
+    ${f.mats.map((m,i)=>`<tr data-i="${i}"><td class="name"><input data-cm="nome" value="${esc(m.nome)}" placeholder="Nome do material"></td>
+      <td><input data-cm="preco" inputmode="decimal" value="${esc(m.preco)}"></td><td><input data-cm="emb" inputmode="decimal" value="${esc(m.emb)}" placeholder="1"></td><td><input data-cm="usa" inputmode="decimal" value="${esc(m.usa)}"></td>
+      <td class="calc" id="cum${i}"></td><td><button class="x" data-cmrm="${i}" aria-label="Remover material">×</button></td></tr>`).join('')}
+    </tbody></table></div>
+    <div style="margin-top:12px"><button class="ghost" id="cuAddMat">Adicionar material</button></div></div>
+  <div class="box" style="margin-top:14px"><h3>Mão de obra ${sv?'por atendimento':'do lote'}</h3>
+    <p class="sub cuhint">Preencha o valor fixo (por peça, lote ou atendimento) ou, se paga por hora, o valor da hora e quantos minutos leva.</p>
+    <div class="tablewrap"><table class="cutab"><thead><tr><th>Quem</th><th>Valor fixo (R$)</th><th>ou R$ por hora</th><th>× minutos</th><th>Custo</th><th></th></tr></thead><tbody>
+    ${f.mos.map((m,i)=>`<tr data-w="${i}"><td class="name"><input data-cw="nome" value="${esc(m.nome)}" placeholder="Ex.: costureira"></td>
+      <td><input data-cw="fixo" inputmode="decimal" value="${esc(m.fixo)}"></td><td><input data-cw="hora" inputmode="decimal" value="${esc(m.hora)}"></td><td><input data-cw="min" inputmode="decimal" value="${esc(m.min)}"></td>
+      <td class="calc" id="cuw${i}"></td><td><button class="x" data-cwrm="${i}" aria-label="Remover">×</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty sub">Sem mão de obra paga por produção.</td></tr>'}
+    </tbody></table></div>
+    <div style="margin-top:12px"><button class="ghost" id="cuAddMo">Adicionar mão de obra</button></div></div>
+  <div class="box" style="margin-top:14px"><h3>Outros custos ${sv?'por atendimento':'do lote'}</h3>
+    <div class="tablewrap"><table class="cutab"><tbody>
+    ${f.outros.map((o,i)=>`<tr data-o="${i}"><td class="name"><input data-co="nome" value="${esc(o.nome)}" placeholder="Nome do custo"></td><td><input data-co="valor" inputmode="decimal" value="${esc(o.valor)}" placeholder="R$"></td><td><button class="x" data-corm="${i}" aria-label="Remover">×</button></td></tr>`).join('')}
+    </tbody></table></div>
+    <div style="margin-top:12px"><button class="ghost" id="cuAddOut">Adicionar custo</button></div></div>
+  </div>
+  <aside class="box cuaside"><h3>O que não entra aqui</h3>
+    <p class="sub">Estes custos ficam na etapa 3 do diagnóstico. Lá eles já são divididos pelas vendas, então colocar aqui também faria contar duas vezes.</p>
+    <b>Despesas fixas</b><span class="sub">Existem mesmo sem vender.</span><ul>${md.fixos.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+    <b>Despesas variáveis em %</b><span class="sub">Saem como porcentagem de cada venda.</span><ul>${md.vars.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+  </aside></div>
+  <div class="hero-num cuhero" id="cuRes"></div>
+  <div class="box cusend" id="cuSend"></div>`;
+  updCusto();
+}
+function updCusto(){
+  const C=cuData(),f=C.fichas[C.sel],k=cuCalc(f),sv=cuSv();
+  k.mats.forEach((v,i)=>{const el=$('cum'+i);if(el)el.textContent=v?brl(v):''});
+  k.mos.forEach((v,i)=>{const el=$('cuw'+i);if(el)el.textContent=v?brl(v):''});
+  const pz=x=>k.tot>0?pct(x/k.tot):'';
+  $('cuRes').innerHTML=`<div class="kpi"><div class="l">Custo por ${sv?'atendimento':'unidade'}</div><div class="v">${brl(k.un)}</div><div class="l">${sv?'':`lote de ${dec(k.rend,0)} ${k.rend==1?'unidade':'unidades'}: ${brl(k.tot)}`}</div></div>
+    <div class="kpi"><div class="l">De onde vem o custo</div><div class="cubars">
+      ${[['Materiais',k.mat],['Mão de obra',k.mo],['Outros',k.out]].map(([n,v])=>`<div><span>${n}</span><b>${brl(v/k.rend)}</b><i style="width:${k.tot>0?v/k.tot*100:0}%"></i><small>${pz(v)}</small></div>`).join('')}
+    </div></div>`;
+  const rows=S.estoque.map((r,i)=>[i,r.nome]).filter(r=>r[1]);
+  const match=rows.find(r=>plNorm(r[1])===plNorm(f.nome));
+  $('cuSend').innerHTML=k.un>0&&CUR&&modsOf(CUR).includes('diagnostico')||(k.un>0&&ROLE==='admin')?`<h3>Levar para o diagnóstico</h3>
+    <p class="sub" style="margin:0 0 10px">Use este custo na etapa 2 (${sv?'Serviços e custos':'Estoque e custos'}).</p>
+    <div class="cusendrow"><select id="cuDest"><option value="new">Adicionar como novo ${sv?'serviço':'produto'}</option>${rows.map(r=>`<option value="${r[0]}" ${match&&match[0]===r[0]?'selected':''}>Substituir o custo de: ${esc(r[1])}</option>`).join('')}</select>
+    <button id="cuUse">Usar ${brl(k.un)} como custo</button></div><p class="sub cumsg" id="cuMsg"></p>`:'';
+}
+$('cuSel').onchange=()=>{cuData().sel=+$('cuSel').value;renderCusto();cuSave()};
+$('cuNova').onclick=()=>{const C=cuData();C.fichas.push(cuNovaFicha());C.sel=C.fichas.length-1;renderCusto();cuSave();setTimeout(()=>{const i=$('cuBody').querySelector('[data-cf="nome"]');if(i)i.focus()},50)};
+$('cuDel').onclick=()=>{const C=cuData(),f=C.fichas[C.sel];if(!confirm(`Excluir a ficha "${f.nome||'sem nome'}"?`))return;C.fichas.splice(C.sel,1);C.sel=0;renderCusto();cuSave()};
+$('cuBody').addEventListener('input',e=>{
+  const C=cuData(),f=C.fichas[C.sel],t=e.target,d=t.dataset;
+  if(d.cf){f[d.cf]=t.value;if(d.cf==='nome'){const o=$('cuSel').options[C.sel];if(o)o.textContent=t.value||(cuSv()?'Serviço sem nome':'Produto sem nome')}}
+  else if(d.cm)f.mats[+t.closest('tr').dataset.i][d.cm]=t.value;
+  else if(d.cw)f.mos[+t.closest('tr').dataset.w][d.cw]=t.value;
+  else if(d.co)f.outros[+t.closest('tr').dataset.o][d.co]=t.value;
+  else return;
+  updCusto();cuSave();
+});
+$('cuBody').addEventListener('click',e=>{
+  const C=cuData(),f=C.fichas[C.sel],t=e.target,d=t.dataset;
+  if(t.id==='cuAddMat'){f.mats.push({nome:'',preco:'',emb:'',usa:''});renderCusto();cuSave();const r=$('cuBody').querySelectorAll('[data-cm="nome"]');r[r.length-1].focus();return}
+  if(t.id==='cuAddMo'){f.mos.push({nome:'',fixo:'',hora:'',min:'',modo:'fixo'});renderCusto();cuSave();const r=$('cuBody').querySelectorAll('[data-cw="nome"]');r[r.length-1].focus();return}
+  if(t.id==='cuAddOut'){f.outros.push({nome:'',valor:''});renderCusto();cuSave();return}
+  if(d.cmrm!==undefined){f.mats.splice(+d.cmrm,1);if(!f.mats.length)f.mats.push({nome:'',preco:'',emb:'',usa:''});renderCusto();cuSave();return}
+  if(d.cwrm!==undefined){f.mos.splice(+d.cwrm,1);renderCusto();cuSave();return}
+  if(d.corm!==undefined){f.outros.splice(+d.corm,1);renderCusto();cuSave();return}
+  if(t.id==='cuUse'){
+    const k=cuCalc(f),v=(Math.round(k.un*100)/100).toFixed(2).replace('.',','),dest=$('cuDest').value;
+    let nome;
+    if(dest==='new'){S.estoque=S.estoque.filter(r=>r.nome||r.qtd||r.custo||r.preco||r.vendas);S.estoque.push({nome:f.nome||(cuSv()?'Novo serviço':'Novo produto'),qtd:'',custo:v,preco:'',desc:'',vendas:''});nome=f.nome||'o novo item'}
+    else{S.estoque[+dest].custo=v;nome=S.estoque[+dest].nome}
+    renderStock();applyTipo();save();updCusto();
+    $('cuMsg').innerHTML=`Pronto: ${brl(k.un)} foi para <b>${esc(nome)}</b> na etapa 2.${dest==='new'?' Complete lá o preço de venda e as vendas por mês.':''}`;
+  }
+});
+
+/* ---------- Pergunta "você sabe calcular os custos?" na etapa 2 ---------- */
+const WA_ELAINE='5511980230467';
+function paintCustoQ(){
+  const box=$('custoQ');if(!box||!CUR)return;
+  const sv=cuSv(),v=S.sabeCusto||'',adm=ROLE==='admin',lib=modsOf(CUR).includes('calc_custo');
+  $('custoQTitle').textContent=`Você sabe calcular o custo de cada ${sv?'serviço':'produto'}?`;
+  box.querySelectorAll('[data-sc]').forEach(b=>b.classList.toggle('on',b.dataset.sc===v));
+  let h='';
+  if(v==='sim')h=sv?'Ótimo! Use o custo completo de cada atendimento: materiais, descartáveis e o que você paga ao profissional por atendimento.':'Ótimo! Use o custo completo de cada produto: compra ou produção, frete de compra, embalagem e etiqueta.';
+  else if(v){
+    if(adm)h=lib?'A cliente respondeu que não sabe calcular com segurança. A Calculadora de custos já está liberada para ela.':`A cliente respondeu que não sabe calcular com segurança. <button class="go" id="custoLib">Liberar a Calculadora de custos para ela</button>`;
+    else if(lib)h=`Sem problema: a Calculadora de custos te ajuda a descobrir, item por item, e já traz o resultado para cá. <button class="go" id="custoOpen">Abrir a Calculadora de custos</button>`;
+    else{const msg=`Olá, Elaine! Estou preenchendo o Diagnóstico de Vendas e não sei calcular bem os meus custos. Pode liberar a Calculadora de custos para mim?`;
+      h=`Sem problema: a Elaine pode liberar para você a Calculadora de custos, que ajuda a descobrir o custo de cada ${sv?'serviço':'produto'}. Enquanto isso, preencha com o valor que você acredita ser o mais próximo. <a class="go" target="_blank" rel="noopener" href="https://wa.me/${WA_ELAINE}?text=${encodeURIComponent(msg)}">Pedir para a Elaine pelo WhatsApp</a>`}
+  }
+  $('custoQMsg').innerHTML=h;$('custoQMsg').hidden=!h;
+}
+$('custoQ').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-sc]');
+  if(b){S.sabeCusto=S.sabeCusto===b.dataset.sc?'':b.dataset.sc;paintCustoQ();save();if(ROLE==='admin')renderReview();return}
+  if(e.target.id==='custoOpen'){setMod('custo');window.scrollTo({top:$('modNav').offsetTop-20,behavior:'smooth'});return}
+  if(e.target.id==='custoLib'){
+    const mods=[...new Set(modsOf(CUR).concat(['calc_custo']))];
+    const {error}=await sb.from('diagnosticos').update({modulos:mods}).eq('user_id',CUR.user_id);
+    if(error){alert('Não foi possível liberar. Tente pelo botão Módulos e plano.');return}
+    CUR.modulos=mods;const i=LIST.findIndex(r=>r.user_id===CUR.user_id);if(i>-1)LIST[i].modulos=mods;
+    paintMods();renderAdmin();paintCustoQ();
+  }
+});
 
 /* ---------- Mostrar ou esconder a senha ---------- */
 (function(){
