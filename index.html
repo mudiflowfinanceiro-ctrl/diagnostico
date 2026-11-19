@@ -218,7 +218,7 @@ body.noclient .review{display:none}
 .rv .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 .wait{display:none}
 body.locked .wait{display:block;margin-top:16px;background:var(--soft);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:12px 14px;font-size:.88rem;color:var(--ink)}
-body.locked #swotOut,body.locked #stockAlerts,body.locked #expAlerts,body.locked #peAlerts,body.locked #prodAlerts{display:none!important}
+body.locked #swotOut,body.locked #stockAlerts,body.locked #expAlerts,body.locked #peAlerts,body.locked #prodAlerts,body.locked #servAlerts,body.locked #spAlerts,body.locked #eqAlerts,body.locked #procAlerts{display:none!important}
 .rv .play{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:var(--bg)}
 .rv .play>summary{cursor:pointer;list-style:none;padding:12px 14px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
 .rv .play>summary::-webkit-details-marker{display:none}
@@ -364,6 +364,14 @@ body:not([data-mod="custo"]) #custoMod{display:none!important}
 .cumodelo{margin:12px 0 0;font-size:.84rem}
 .cutab td.empty{font-size:.84rem;padding:10px 6px}
 @media (max-width:860px){.cugrid{grid-template-columns:1fr}}
+td select{padding:6px 8px;min-width:130px}
+.proc-row{display:grid;grid-template-columns:minmax(0,1.5fr) 150px minmax(0,1fr);gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line);font-size:.87rem}
+.proc-row:last-of-type{border-bottom:none}
+.proc-row input{font-size:.84rem}
+.proc-row select[data-st="sim"]{border-color:var(--good);color:var(--good)}
+.proc-row select[data-st="parcial"]{border-color:var(--warn);color:var(--warn)}
+.proc-row select[data-st="nao"]{border-color:var(--bad);color:var(--bad)}
+@media (max-width:640px){.proc-row{grid-template-columns:1fr}}
 .cutab td input{min-width:72px}
 .cutab td.name{width:40%}
 .cutab td.name input{min-width:230px}
@@ -406,7 +414,7 @@ body:not([data-mod="custo"]) #custoMod{display:none!important}
         <button type="submit">Entrar</button>
         <button type="button" class="link" id="toForgot">Esqueci minha senha</button>
       </form>
-      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 27</p>
+      <p style="margin:14px 0 0;font-size:.7rem;color:var(--muted);opacity:.7">Versão 28</p>
     </div>
     <div id="vForgot" hidden>
       <span class="pill">Nova senha</span>
@@ -438,7 +446,7 @@ body:not([data-mod="custo"]) #custoMod{display:none!important}
   <span class="pill">Diagnóstico de vendas</span>
   <div class="rule"></div>
   <h1>Quanto o seu negócio precisa <em>vender</em> para dar lucro?</h1>
-  <p>Preencha etapa por etapa: análise SWOT/FOFA, estoque, despesas, meta de vendas e nova produção. Cada etapa mostra os seus números na hora. As soluções da análise SWOT/FOFA e o relatório final com o plano de ação vêm com a revisão da consultora.</p>
+  <p id="heroTxt">Preencha etapa por etapa: análise SWOT/FOFA, estoque, despesas, meta de vendas e nova produção. Cada etapa mostra os seus números na hora. As soluções da análise SWOT/FOFA e o relatório final com o plano de ação vêm com a revisão da consultora.</p>
 </div></section>
 <div class="wrap">
   <div class="box adminp" id="adminPanel" hidden>
@@ -581,14 +589,7 @@ body:not([data-mod="custo"]) #custoMod{display:none!important}
     <div class="rv" id="reviewBody"></div>
   </details>
 
-  <nav class="steps" role="tablist">
-    <button role="tab" data-p="1" aria-selected="true"><span>1</span>Análise SWOT / FOFA</button>
-    <button role="tab" data-p="2" aria-selected="false"><span>2</span>Estoque e custos</button>
-    <button role="tab" data-p="3" aria-selected="false"><span>3</span>Despesas</button>
-    <button role="tab" data-p="4" aria-selected="false"><span>4</span>Quanto vender</button>
-    <button role="tab" data-p="5" aria-selected="false"><span>5</span>Nova produção</button>
-    <button role="tab" data-p="6" aria-selected="false"><span>6</span>Relatório</button>
-  </nav>
+  <nav class="steps" role="tablist" id="steps"></nav>
 
   <!-- 1 SWOT -->
   <section class="panel on" id="p1">
@@ -622,7 +623,7 @@ body:not([data-mod="custo"]) #custoMod{display:none!important}
   <!-- 3 Despesas -->
   <section class="panel" id="p3">
     <h2>Despesas fixas e variáveis</h2>
-    <p class="sub">Fixas são as que existem mesmo sem vender nada. Variáveis acompanham cada venda e entram como percentual do preço. O custo do produto já foi tratado na etapa 2.</p>
+    <p class="sub" id="p3sub">Fixas são as que existem mesmo sem vender nada. Variáveis acompanham cada venda e entram como percentual do preço. O custo do produto já foi tratado na etapa 2.</p>
     <div class="grid2">
       <div class="box">
         <h3>Despesas fixas mensais</h3>
@@ -685,6 +686,64 @@ body:not([data-mod="custo"]) #custoMod{display:none!important}
     </div>
     <div class="kpis" id="prodKpis"></div>
     <div class="alerts" id="prodAlerts"></div>
+  </section>
+
+  <!-- S2 Serviços -->
+  <section class="panel" id="p2s">
+    <h2>Serviços e custos</h2>
+    <p class="sub">Liste os procedimentos com duração, preço, desconto médio, insumos por atendimento e quantos atendimentos faz por mês. A ferramenta calcula quanto sobra de cada atendimento, quanto cada procedimento rende por hora de agenda, o lucro depois do custo da hora e o preço sugerido.</p>
+    <div class="box">
+      <div class="fields" style="margin-bottom:14px">
+        <label>Horas disponíveis para atendimento (mês)<input id="svHoras" inputmode="decimal"><em id="svHorasHint">soma de todos os profissionais no mês</em></label>
+        <label>Margem de lucro desejada (%)<input id="svMargem" inputmode="decimal"><em>usada no preço sugerido</em></label>
+      </div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Procedimento</th><th>Duração (min)</th><th>Preço (R$)</th><th>Desconto (%)</th><th>Insumos/atend. (R$)</th><th>Atend./mês</th><th>Sobra/atend.</th><th>Rende por hora</th><th>Lucro/atend.</th><th>Preço sugerido</th><th>ABC</th><th></th></tr></thead>
+        <tbody id="servBody"></tbody>
+      </table></div>
+      <div style="margin-top:12px"><button class="ghost" id="addServ">Adicionar procedimento</button></div>
+      <p class="sub" style="font-size:.78rem;margin:12px 0 0"><b>Sobra/atend.</b>: preço com desconto menos insumos e variáveis da etapa 3. <b>Lucro/atend.</b>: sobra menos o custo fixo do tempo que o procedimento ocupa na agenda.</p>
+    </div>
+    <div class="kpis" id="servKpis"></div>
+    <div class="alerts" id="servAlerts"></div>
+  </section>
+
+  <!-- S4 Quanto atender -->
+  <section class="panel" id="p4s">
+    <h2>Quanto preciso atender?</h2>
+    <p class="sub">Ponto de equilíbrio e meta em reais, atendimentos e horas de agenda. Usa os procedimentos da etapa 2 (médias ponderadas pelos atendimentos) e as despesas da etapa 3.</p>
+    <div class="box"><div class="fields" id="spFields"></div></div>
+    <div class="hero-num" id="spHero"></div>
+    <div class="box" style="margin-top:14px">
+      <h3>Faturamento: atual x necessário</h3>
+      <div class="bars" id="spBars"></div>
+    </div>
+    <div class="alerts" id="spAlerts"></div>
+  </section>
+
+  <!-- S5 Equipe -->
+  <section class="panel" id="p5s">
+    <h2>Equipe e comissão</h2>
+    <p class="sub">Para cada profissional: vínculo, horas disponíveis no mês, quanto fatura, percentual e base da comissão e valor fixo (salário ou ajuda de custo). Mostra quanto cada um custa e quanto sobra para a clínica. Os salários fixos também devem estar nas despesas fixas da etapa 3.</p>
+    <div class="box">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Profissional</th><th>Vínculo</th><th>Horas/mês</th><th>Faturamento/mês (R$)</th><th>Comissão (%)</th><th>Base da comissão</th><th>Fixo/mês (R$)</th><th>Comissão (R$)</th><th>Custo total</th><th>% do faturamento</th><th>Faturamento/hora</th><th></th></tr></thead>
+        <tbody id="eqBody"></tbody>
+      </table></div>
+      <div style="margin-top:12px"><button class="ghost" id="addEq">Adicionar profissional</button></div>
+    </div>
+    <div class="kpis" id="eqKpis"></div>
+    <div id="eqUseWrap"></div>
+    <div class="alerts" id="eqAlerts"></div>
+  </section>
+
+  <!-- S6 Processos -->
+  <section class="panel" id="p7s">
+    <h2>Processos e controles</h2>
+    <p class="sub">Avalie a rotina financeira com o cliente, de preferência com o sistema aberto. Marque cada item como Sim, Parcial, Não ou Não se aplica. O que for Não ou Parcial vira ação no plano do relatório.</p>
+    <div class="kpis" id="procKpis" style="margin-top:0"></div>
+    <div class="alerts" id="procAlerts"></div>
+    <div id="procAreas"></div>
   </section>
 
   <!-- 6 Relatório -->
@@ -785,6 +844,8 @@ const FIX_DEFAULT = ['Aluguel','Salários e encargos','Pró-labore','Contador','
 function blank(){
   return {client:'',
     swot:{sel:{F:[],Fr:[],O:[],A:[]},custom:{F:[],Fr:[],O:[],A:[]}},
+    swotS:{sel:{F:[],Fr:[],O:[],A:[]},custom:{F:[],Fr:[],O:[],A:[]}},
+    serv:blankServ(),
     estoque:[{nome:'',qtd:'',custo:'',preco:'',desc:'',vendas:''}],
     fixas:FIX_DEFAULT.map(n=>({nome:n,valor:''})),
     vars:Object.fromEntries(VARS.map(v=>[v[0],String(v[2])])),
@@ -828,30 +889,30 @@ const dec=(n,d=1)=>isFinite(n)?n.toLocaleString('pt-BR',{maximumFractionDigits:d
 
 /* ---------- 1. SWOT ---------- */
 function labelsOf(q){
-  const out=S.swot.sel[q].map(i=>({l:SWOT[q].items[i][0],a:SWOT[q].items[i][1]}));
-  S.swot.custom[q].forEach(c=>out.push({l:c,a:'Ponto específico do negócio: defina com o cliente uma ação, um responsável e um prazo.'}));
+  const out=SW().sel[q].map(i=>({l:LIB()[q].items[i][0],a:LIB()[q].items[i][1]}));
+  SW().custom[q].forEach(c=>out.push({l:c,a:'Ponto específico do negócio: defina com o cliente uma ação, um responsável e um prazo.'}));
   return out;
 }
 function renderSwot(){
   $('swotGrid').innerHTML=Q.map(q=>`
     <div class="box quad ${q}">
-      <h3>${SWOT[q].t}<small>${SWOT[q].h}</small></h3>
-      ${SWOT[q].items.map((it,i)=>`<label class="check"><input type="checkbox" data-q="${q}" data-i="${i}" ${S.swot.sel[q].includes(i)?'checked':''}>${esc(it[0])}</label>`).join('')}
-      <div id="cust-${q}">${S.swot.custom[q].map((c,i)=>`<div class="chip">${esc(c)}<button class="x" aria-label="Remover" data-rmq="${q}" data-rmi="${i}">×</button></div>`).join('')}</div>
+      <h3>${LIB()[q].t}<small>${LIB()[q].h}</small></h3>
+      ${LIB()[q].items.map((it,i)=>`<label class="check"><input type="checkbox" data-q="${q}" data-i="${i}" ${SW().sel[q].includes(i)?'checked':''}>${esc(it[0])}</label>`).join('')}
+      <div id="cust-${q}">${SW().custom[q].map((c,i)=>`<div class="chip">${esc(c)}<button class="x" aria-label="Remover" data-rmq="${q}" data-rmi="${i}">×</button></div>`).join('')}</div>
       <div class="addrow"><input id="add-${q}" placeholder="Adicionar outro ponto"><button class="ghost" data-add="${q}">Adicionar</button></div>
     </div>`).join('');
   updateSwot();
 }
 $('swotGrid').addEventListener('change',e=>{
   const t=e.target;if(!t.dataset.q)return;
-  const q=t.dataset.q,i=+t.dataset.i,arr=S.swot.sel[q];
-  if(t.checked){if(!arr.includes(i))arr.push(i)}else S.swot.sel[q]=arr.filter(x=>x!==i);
+  const q=t.dataset.q,i=+t.dataset.i,arr=SW().sel[q];
+  if(t.checked){if(!arr.includes(i))arr.push(i)}else SW().sel[q]=arr.filter(x=>x!==i);
   updateSwot();save();
 });
 $('swotGrid').addEventListener('click',e=>{
   const t=e.target;
-  if(t.dataset.add){const q=t.dataset.add,inp=$('add-'+q),v=inp.value.trim();if(!v)return;S.swot.custom[q].push(v);renderSwot();save();$('add-'+q).focus()}
-  if(t.dataset.rmq){S.swot.custom[t.dataset.rmq].splice(+t.dataset.rmi,1);renderSwot();save()}
+  if(t.dataset.add){const q=t.dataset.add,inp=$('add-'+q),v=inp.value.trim();if(!v)return;SW().custom[q].push(v);renderSwot();save();$('add-'+q).focus()}
+  if(t.dataset.rmq){SW().custom[t.dataset.rmq].splice(+t.dataset.rmi,1);renderSwot();save()}
 });
 $('swotGrid').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('add-')){e.preventDefault();e.target.nextElementSibling.click()}});
 
@@ -883,7 +944,7 @@ function updateSwot(){
     ${st?`<div class="start"><b>Por onde começar.</b> ${st}</div>`:''}
     ${cross.length?`<div class="group"><h3 style="font-size:1.1rem">Estratégias cruzadas</h3>${cross.map(c=>`<div class="item"><b>${c.k}</b><p>${c.d}</p>${c.r.map(x=>`<p>• ${esc(x)}</p>`).join('')}</div>`).join('')}</div>`:''}
     <div class="group"><h3 style="font-size:1.1rem">Ação para cada ponto</h3>
-    ${['Fr','A','O','F'].map(q=>labelsOf(q).map(x=>`<div class="item"><b><span class="tag ${q}">${SWOT[q].t}</span>${esc(x.l)}</b><p>${esc(x.a)}</p></div>`).join('')).join('')}</div>`;
+    ${['Fr','A','O','F'].map(q=>labelsOf(q).map(x=>`<div class="item"><b><span class="tag ${q}">${LIB()[q].t}</span>${esc(x.l)}</b><p>${esc(x.a)}</p></div>`).join('')).join('')}</div>`;
 }
 
 /* ---------- 2. Estoque ---------- */
@@ -957,7 +1018,7 @@ $('fixBody').addEventListener('input',e=>{const tr=e.target.closest('tr');S.fixa
 $('fixBody').addEventListener('click',e=>{if(e.target.dataset.rm!==undefined){S.fixas.splice(+e.target.dataset.rm,1);renderFix();save()}});
 $('addFix').onclick=()=>{S.fixas.push({nome:'',valor:''});renderFix();save()};
 function renderVars(){
-  $('varFields').innerHTML=VARS.map(v=>`<label>${v[1]} (%)<input inputmode="decimal" data-v="${v[0]}" value="${esc(S.vars[v[0]])}"></label>`).join('');
+  $('varFields').innerHTML=VARS.map(v=>`<label>${isServ()?VAR_LABEL_S[v[0]]:v[1]} (%)<input inputmode="decimal" data-v="${v[0]}" value="${esc(S.vars[v[0]])}"></label>`).join('');
 }
 $('varFields').addEventListener('input',e=>{S.vars[e.target.dataset.v]=e.target.value;updateExp();save()});
 const totFix=()=>S.fixas.reduce((s,r)=>s+num(r.valor),0);
@@ -974,7 +1035,7 @@ function updateExp(){
   if(V>0.2)a.push(['warn','Variáveis acima de 20%',`De cada R$ 100 vendidos, ${brl(V*100)} saem antes de pagar o produto. Revise taxas de cartão e marketplace, incentive Pix e confira o regime tributário.`]);
   if(!S.fixas.some(r=>/pr[oó].?labore/i.test(r.nome)&&num(r.valor)>0))a.push(['warn','Pró-labore não informado','Sem o salário do dono nas fixas, o negócio parece mais lucrativo do que é. Inclua um valor realista.']);
   $('expAlerts').innerHTML=a.map(x=>`<div class="alert ${x[0]}"><b>${x[1]}</b>${x[2]}</div>`).join('');
-  updatePE();updateProd();
+  updatePE();updateProd();refreshServ();
 }
 
 /* ---------- 4. Ponto de equilíbrio ---------- */
@@ -1074,7 +1135,7 @@ function prodCalc(){
   return {sell,meses,Fl,rows,valid,Q,aCu,aNet,aPl,aP,invest,sold,fatPrev,netPrev,descPrev,Fp,L,resLote,resPer,unRecup,unTudo,den,qFix,qMeta,V};
 }
 function updateProd(){
-  if(!$('prodBody').children.length)return;
+  if($('prodBody').children.length!==S.prod.itens.length)return;
   const k=prodCalc();$('lotTot').textContent=brl(k.Fl);
   k.rows.forEach(r=>{const has=r.cu>0||r.p>0;
     $('pcu'+r.i).textContent=has?brl(r.full):'';
@@ -1109,6 +1170,7 @@ function updateProd(){
 
 /* ---------- 6. Relatório ---------- */
 function renderReport(){
+  if(isServ()){renderReportServ();return}
   const st=stockCalc(),k=peCalc(),F=totFix(),V=totVar();
   const swotLines=Q.map(q=>{const l=labelsOf(q);return l.length?`<p><span class="tag ${q}">${SWOT[q].t}</span>${l.map(x=>esc(x.l)).join('; ')}</p>`:''}).join('');
   const acts=['Fr','A','O','F'].flatMap(q=>labelsOf(q).map(x=>`<li>${esc(x.a)}</li>`)).join('');
@@ -1149,23 +1211,429 @@ function renderReport(){
 }
 $('btnPrint').onclick=()=>window.print();
 
+/* ================= MODO SERVIÇOS ================= */
+const SWOT_S = {
+  F:{t:'Forças',h:'o que faz bem hoje',items:[
+    ['Profissionais qualificados e com boa reputação','Mostre a qualificação: certificados, antes e depois (com autorização) e depoimentos no Google e no Instagram.'],
+    ['Clientes fiéis que retornam','Crie um plano de manutenção (retorno a cada 30 a 45 dias) com agendamento já feito na saída do atendimento.'],
+    ['Boa localização e fácil acesso','Reforce no Google Meu Negócio com fotos da fachada, estacionamento e rotas. Faça ações com o comércio vizinho.'],
+    ['Indicação de médicos e outros profissionais','Formalize as parcerias: material de encaminhamento, retorno ao profissional que indicou e visita a cada trimestre.'],
+    ['Estrutura e biossegurança de qualidade','Comunique a biossegurança (esterilização, materiais descartáveis): é argumento de valor e justifica preço.'],
+    ['Serviços diferenciados ou especializados','Precifique os diferenciais pelo valor e pelo tempo (etapa 2) e destaque-os na comunicação.'],
+    ['Avaliações positivas no Google','Peça avaliação no fim de todo atendimento e responda a todas. Use as melhores em anúncios.'],
+    ['Agenda organizada em sistema','Use o sistema também para gestão: relatórios de ocupação, retorno e faturamento por profissional.']
+  ]},
+  Fr:{t:'Fraquezas',h:'o que atrapalha hoje',items:[
+    ['Agenda com horários ociosos','Identifique os horários vazios e crie ofertas específicas para eles (horário de menor procura, pacotes, parcerias).'],
+    ['Faltas e cancelamentos sem controle','Confirme todo agendamento na véspera, mantenha lista de espera e defina política de falta (cobrança ou sinal).'],
+    ['Preço definido pela concorrência','Precifique por custo e tempo: insumos + custo da hora + variáveis + margem (etapas 2 a 4).'],
+    ['Dependência de um profissional','Distribua a agenda, padronize os protocolos e registre o histórico do cliente na clínica, não com o profissional.'],
+    ['Clientes não retornam para manutenção','Agende o retorno antes de o cliente sair e faça lembrete automático por WhatsApp.'],
+    ['Recebimentos sem conferência','Implante fechamento de caixa diário e conciliação semanal com a maquininha e o banco (etapa Processos).'],
+    ['Comissão sem regra clara','Escreva a regra: base de cálculo, percentual, pacotes, descontos e data de pagamento. Todos assinam.'],
+    ['Não acompanha indicadores','Acompanhe todo mês: faturamento, ocupação da agenda, ticket médio, retorno e faturamento por profissional.']
+  ]},
+  O:{t:'Oportunidades',h:'o que o mercado oferece',items:[
+    ['Público que precisa de acompanhamento contínuo','Crie protocolos e pacotes de acompanhamento para quem precisa voltar com frequência.'],
+    ['Parcerias com médicos, academias e assessorias esportivas','Monte um programa de indicação com material próprio e condição para o público do parceiro.'],
+    ['Pacotes e planos de manutenção','Ofereça plano mensal ou pacote de sessões com pagamento antecipado e comissão paga por sessão realizada.'],
+    ['Atendimento em domicílio ou em empresas','Teste agenda externa em horários ociosos, com preço que inclua deslocamento e tempo.'],
+    ['Agendamento online e Google Meu Negócio','Ative agendamento online e link no Instagram e no Google para captar fora do horário comercial.'],
+    ['Venda de produtos complementares','Venda produtos ligados ao tratamento com indicação do profissional e comissão própria para produto.'],
+    ['Datas e estações de maior procura','Monte calendário de campanhas com 45 dias de antecedência e reforce a agenda nos meses fortes.'],
+    ['Convênios com empresas','Ofereça condição para colaboradores de empresas próximas, com pagamento facilitado.']
+  ]},
+  A:{t:'Ameaças',h:'o que pode prejudicar',items:[
+    ['Concorrência com preço menor','Não entre em guerra de preço: reforce qualificação, biossegurança, resultado e atendimento.'],
+    ['Profissional sair levando clientes','Cadastro e histórico dos clientes na clínica, contrato formal e relacionamento da clínica com o cliente.'],
+    ['Aumento de custo de insumos','Revise o custo de insumos por procedimento a cada trimestre e tenha fornecedores alternativos.'],
+    ['Taxas de cartão e antecipação','Confira as taxas cobradas com as contratadas, negocie com a adquirente e incentive Pix.'],
+    ['Exigências sanitárias e de fiscalização','Mantenha licenças, alvarás e protocolos em dia, com checklist e responsável.'],
+    ['Sazonalidade','Crie ações para os meses fracos e faça reserva de caixa nos meses fortes.'],
+    ['Inadimplência em pacotes','Receba pacotes antecipadamente ou no cartão parcelado, nunca “fiado”.'],
+    ['Risco de reclamação ou intercorrência','Protocolos escritos, termo de consentimento e registro de todo atendimento.']
+  ]}
+};
+const FIX_SERV=['Aluguel','Salários e encargos da equipe fixa','Pró-labore','Contador','Energia, água e internet','Sistema de agenda e softwares','Esterilização e manutenção de equipamentos','Marketing fixo'];
+const VAR_LABEL_S={imp:'Impostos (Simples etc.)',cartao:'Taxas de cartão e antecipação',comissao:'Comissões (média sobre o atendimento)',frete:'Plataformas e agendamento online',outros:'Outras variáveis'};
+const VINC=[['clt','CLT'],['aut','Autônomo / PJ'],['parc','Parceiro (contrato de parceria)']];
+const BASES=[['bruto','Valor bruto'],['liq','Líquido de taxas'],['liq2','Líquido de taxas e insumos']];
+const PROC=[
+  {a:'Cadastros e sistema',items:[
+    ['Serviços cadastrados no sistema com preço, duração e comissão atualizados','Revise o cadastro de serviços no sistema: preço, duração e comissão de cada procedimento.'],
+    ['Formas de pagamento separadas por modalidade (Pix, débito, crédito à vista e parcelado)','Separe as formas de pagamento no sistema. Sem isso não é possível conciliar com a maquininha.'],
+    ['Taxas de cartão cadastradas e iguais às do contrato com a adquirente','Pegue o contrato ou o extrato da adquirente e confira taxa por modalidade. Cadastre no sistema.'],
+    ['Cada pessoa tem usuário próprio e permissões definidas','Crie usuário individual e limite quem pode editar, excluir ou dar desconto em vendas.']
+  ]},
+  {a:'Caixa e recebimentos',items:[
+    ['Todo atendimento é fechado no sistema no mesmo dia','Regra: nenhum cliente sai sem a conta fechada no sistema.'],
+    ['Fechamento de caixa diário com conferência por forma de pagamento','Implante o fechamento diário: sistema × maquininha × Pix × dinheiro, assinado por quem fechou.'],
+    ['Diferenças de caixa registradas e justificadas','Crie um registro de diferenças com valor, motivo e responsável.'],
+    ['Pacotes e pagamentos antecipados controlados por saldo de sessões','Controle o saldo de sessões de cada pacote: o valor recebido só vira receita quando a sessão é feita.']
+  ]},
+  {a:'Contas a pagar',items:[
+    ['Todas as despesas lançadas com vencimento e categoria','Lance toda conta no dia em que chega, com vencimento e categoria.'],
+    ['Plano de contas (categorias) padronizado','Defina as categorias de receita e despesa (base da DRE) e use sempre as mesmas.'],
+    ['Contas da empresa e pessoais separadas','Separe PF e PJ. O dono recebe pró-labore fixo e não usa o caixa da clínica para gastos pessoais.'],
+    ['Programação semanal de pagamentos','Uma vez por semana, revise o que vence nos próximos 7 a 30 dias e o saldo disponível.']
+  ]},
+  {a:'Conciliação',items:[
+    ['Vendas do sistema conferidas com a maquininha','Confira diariamente venda a venda: valor, modalidade e parcelas.'],
+    ['Recebimentos da adquirente conferidos com o extrato bancário','Toda semana, compare o que a adquirente deveria pagar com o que caiu no banco e confira as taxas.'],
+    ['Saídas do banco conferidas com os lançamentos','Toda saída do banco precisa ter lançamento correspondente no sistema ou na planilha.']
+  ]},
+  {a:'Precificação',items:[
+    ['Preço calculado por custo (insumos, tempo, variáveis e rateio das fixas)','Use a etapa 2 para calcular o preço de cada procedimento a partir do custo da hora.'],
+    ['Preços revisados pelo menos uma vez por ano','Defina um mês fixo para revisar preços todo ano.'],
+    ['Política de descontos definida (quem pode dar e quanto)','Escreva a política de descontos e limite no sistema quem pode aplicar.']
+  ]},
+  {a:'Comissões e equipe',items:[
+    ['Regra de comissão por escrito e assinada','Formalize: base de cálculo, percentual, pacotes, descontos, cortesias e data de pagamento.'],
+    ['Comissão calculada pelo sistema, não à mão','Configure a comissão no sistema e use o relatório dele como base do pagamento.'],
+    ['Fechamento conferido e assinado pelo profissional','Entregue o relatório de comissão antes do pagamento para conferência e assinatura.'],
+    ['Vínculo de cada profissional formalizado (CLT, autônomo ou parceria)','Revise com o contador o vínculo de cada profissional e mantenha o contrato correspondente assinado.']
+  ]},
+  {a:'Gestão e indicadores',items:[
+    ['DRE gerencial mensal','Feche a DRE todo mês: receitas, custos variáveis, margem, despesas fixas e resultado.'],
+    ['Fluxo de caixa projetado (30 a 90 dias)','Projete entradas e saídas dos próximos 90 dias e atualize toda semana.'],
+    ['Acompanha ocupação da agenda, ticket médio e retorno de clientes','Monte um painel mensal com ocupação, ticket médio, retorno e faturamento por profissional.'],
+    ['Política de faltas e cancelamentos','Confirmação na véspera, lista de espera e regra de cobrança ou sinal para faltas.']
+  ]}
+];
+const ST=[['','—'],['sim','Sim'],['parcial','Parcial'],['nao','Não'],['na','Não se aplica']];
+function newServRow(){return {nome:'',dur:'',preco:'',desc:'',ins:'',qtd:''}}
+function newEqRow(){return {nome:'',vinc:'aut',horas:'',fat:'',com:'',base:'liq',fixo:''}}
+function blankServ(){return {horas:'',margem:'20',itens:[newServRow()],equipe:[newEqRow()],pe:{lucro:'',fat:'',dias:'22',faltas:''},proc:{}}}
+const isServ=()=>S.tipo==='servico';
+const LIB=()=>isServ()?SWOT_S:SWOT;
+const SW=()=>isServ()?S.swotS:S.swot;
+const opts=(arr,v)=>arr.map(o=>`<option value="${o[0]}" ${o[0]===v?'selected':''}>${o[1]}</option>`).join('');
+const alertsHtml=a=>a.map(x=>`<div class="alert ${x[0]}"><b>${x[1]}</b>${x[2]}</div>`).join('');
+
+/* ---------- S2. Serviços e custos ---------- */
+const eqHoras=()=>S.serv.equipe.reduce((s,r)=>s+num(r.horas),0);
+const horasDisp=()=>num(S.serv.horas)||eqHoras();
+function renderServ(){
+  $('svHoras').value=S.serv.horas;$('svMargem').value=S.serv.margem;
+  $('servBody').innerHTML=S.serv.itens.map((r,i)=>`<tr data-i="${i}">
+    <td class="name"><input data-f="nome" value="${esc(r.nome)}" placeholder="Nome do procedimento"></td>
+    ${['dur','preco','desc','ins','qtd'].map(f=>`<td><input data-f="${f}" inputmode="decimal" value="${esc(r[f])}"${f==='desc'?' placeholder="0"':''}></td>`).join('')}
+    <td class="calc" id="smc${i}"></td><td class="calc" id="smh${i}"></td><td class="calc" id="slu${i}"></td><td class="calc" id="ssg${i}"></td><td class="calc cls" id="sab${i}"></td>
+    <td><button class="x" aria-label="Remover procedimento" data-rm="${i}">×</button></td></tr>`).join('');
+  updateServ();
+}
+$('servBody').addEventListener('input',e=>{const tr=e.target.closest('tr');S.serv.itens[+tr.dataset.i][e.target.dataset.f]=e.target.value;refreshServ();save()});
+$('servBody').addEventListener('click',e=>{if(e.target.dataset.rm!==undefined){S.serv.itens.splice(+e.target.dataset.rm,1);if(!S.serv.itens.length)S.serv.itens.push(newServRow());renderServ();refreshServ();save()}});
+$('addServ').onclick=()=>{S.serv.itens.push(newServRow());renderServ();save();const rows=$('servBody').querySelectorAll('tr');rows[rows.length-1].querySelector('input').focus()};
+$('svHoras').addEventListener('input',e=>{S.serv.horas=e.target.value;refreshServ();save()});
+$('svMargem').addEventListener('input',e=>{S.serv.margem=e.target.value;refreshServ();save()});
+
+function servCalc(){
+  const V=totVar(),F=totFix(),H=horasDisp(),mD=Math.min(Math.max(num(S.serv.margem),0),95)/100;
+  const cH=H>0?F/H:NaN;
+  const rows=S.serv.itens.map((r,i)=>{
+    const dur=num(r.dur),h=dur/60,p=num(r.preco),d=Math.min(num(r.desc),100)/100,ins=num(r.ins),q=num(r.qtd),pl=p*(1-d);
+    const mc=pl-ins-pl*V, mcH=h>0?mc/h:NaN, rat=isFinite(cH)?cH*h:0, luc=mc-rat, mg=pl>0?luc/pl:NaN;
+    const den=1-V-mD, sug=den>0&&d<1&&(ins+rat)>0?((ins+rat)/den)/(1-d):NaN;
+    return {i,nome:r.nome||`Procedimento ${i+1}`,dur,h,p,d,ins,q,pl,mc,mcH,rat,luc,mg,sug,fat:q*pl,hv:q*h};
+  });
+  const valid=rows.filter(r=>r.p||r.dur||r.q||r.ins);
+  const fat=valid.reduce((s,r)=>s+r.fat,0), hv=valid.reduce((s,r)=>s+r.hv,0), at=valid.reduce((s,r)=>s+r.q,0);
+  const sorted=valid.filter(r=>r.fat>0).sort((a,b)=>b.fat-a.fat);let acc=0;
+  sorted.forEach(r=>{acc+=r.fat;const sh=acc/fat;r.abc=sh<=0.8||r===sorted[0]?'A':sh<=0.95?'B':'C'});
+  const w=r=>at>0?r.q:1, W=at>0?at:valid.length;
+  const avg=f=>W>0?valid.reduce((s,r)=>s+w(r)*r[f],0)/W:0;
+  const aP=avg('p'),aPl=avg('pl'),aIns=avg('ins'),aH=avg('h'),aD=aP>0?1-aPl/aP:0;
+  const mcTot=valid.reduce((s,r)=>s+r.q*r.mc,0);
+  return {V,F,H,cH,mD,rows,valid,fat,hv,at,aP,aPl,aIns,aH,aD,occ:H>0?hv/H:NaN,mcTot,mcHmed:hv>0?mcTot/hv:NaN};
+}
+function updateServ(){
+  if($('servBody').children.length!==S.serv.itens.length)return;
+  const k=servCalc();
+  $('svHorasHint').textContent=!num(S.serv.horas)&&eqHoras()>0?`usando ${dec(eqHoras(),0)} h da etapa Equipe`:'soma de todos os profissionais no mês';
+  k.rows.forEach(r=>{const has=r.p>0;
+    $('smc'+r.i).innerHTML=has?`<span style="color:${r.mc<0?'var(--bad)':'inherit'}">${brl(r.mc)}</span>`:'';
+    $('smh'+r.i).textContent=has&&isFinite(r.mcH)?brl(r.mcH)+'/h':'';
+    $('slu'+r.i).innerHTML=has&&isFinite(k.cH)?`<span style="color:${r.luc<0?'var(--bad)':r.mg<0.1?'var(--warn)':'var(--good)'}">${brl(r.luc)}</span>`:'';
+    $('ssg'+r.i).textContent=has&&isFinite(r.sug)?brl(r.sug):'';
+    $('sab'+r.i).textContent=r.abc||'';
+  });
+  $('servKpis').innerHTML=`
+    <div class="kpi"><div class="v">${brl(k.fat)}</div><div class="l">Faturamento estimado/mês</div></div>
+    <div class="kpi"><div class="v">${dec(k.at,0)}</div><div class="l">Atendimentos/mês · ticket médio ${brl(k.aPl)}</div></div>
+    <div class="kpi"><div class="v">${dec(k.hv,0)} h</div><div class="l">Horas vendidas/mês${k.H>0?` de ${dec(k.H,0)} h disponíveis`:''}</div></div>
+    <div class="kpi"><div class="v">${pct(k.occ)}</div><div class="l">Ocupação da agenda</div></div>
+    <div class="kpi"><div class="v">${isFinite(k.cH)?brl(k.cH):'—'}</div><div class="l">Custo fixo por hora disponível</div></div>
+    <div class="kpi"><div class="v">${isFinite(k.mcHmed)?brl(k.mcHmed):'—'}</div><div class="l">Sobra média por hora vendida</div></div>`;
+  const a=[];
+  if(!k.H)a.push(['warn','Informe as horas disponíveis','Sem as horas de atendimento do mês não dá para calcular o custo da hora, o lucro por procedimento e o preço sugerido. Some as horas de todos os profissionais ou preencha a etapa Equipe.']);
+  const negMC=k.valid.filter(r=>r.pl>0&&r.mc<0);
+  if(negMC.length)a.push(['bad','Abaixo do custo direto',`${negMC.map(r=>esc(r.nome)).join(', ')}. O preço não cobre nem insumos, impostos, taxas e comissão. Cada atendimento tira dinheiro da clínica.`]);
+  if(isFinite(k.cH)){
+    const negL=k.valid.filter(r=>r.pl>0&&r.mc>=0&&r.luc<0);
+    if(negL.length)a.push(['warn','Não paga o custo da hora da clínica',`${negL.map(r=>`${esc(r.nome)} (sugerido ${brl(r.sug)})`).join(', ')}. Cobre os custos diretos, mas não a parte das despesas fixas do tempo que ocupa na agenda (${brl(k.cH)} por hora).`]);
+    const below=k.valid.filter(r=>r.p>0&&r.luc>=0&&isFinite(r.sug)&&r.p<r.sug*0.98);
+    if(below.length)a.push(['warn',`Abaixo do preço para ${pct(k.mD)} de lucro`,`${below.map(r=>`${esc(r.nome)}: ${brl(r.p)} → ${brl(r.sug)}`).join('; ')}.`]);
+  }
+  const rk=k.valid.filter(r=>r.pl>0&&r.h>0&&isFinite(r.mcH)).sort((x,y)=>y.mcH-x.mcH);
+  if(rk.length>=2)a.push(['good','O que mais rende por hora de agenda',`${rk.slice(0,3).map(r=>`${esc(r.nome)} (${brl(r.mcH)}/h)`).join(', ')}. Menor rendimento: ${esc(rk[rk.length-1].nome)} (${brl(rk[rk.length-1].mcH)}/h). Com a agenda cheia, priorize os que rendem mais por hora.`]);
+  if(k.H>0&&k.hv>0){
+    if(k.occ>1)a.push(['bad','Horas vendidas acima das disponíveis','Confira as horas disponíveis, a duração dos procedimentos ou as quantidades por mês.']);
+    else if(k.occ>0.9)a.push(['warn','Agenda quase lotada',`Ocupação de ${pct(k.occ)}. Crescer agora depende de preço, de priorizar procedimentos que rendem mais por hora ou de ampliar a equipe.`]);
+    else if(k.occ<0.6)a.push(['warn','Agenda ociosa',`${dec(k.H-k.hv,0)} horas livres por mês (${pct(1-k.occ)} da agenda). Cada hora vendida a mais rende cerca de ${brl(k.mcHmed)} para pagar as fixas e gerar lucro.`]);
+  }
+  const dP=k.valid.filter(r=>r.d>0&&r.mc>0&&r.p*r.d>=0.5*(r.p-r.ins-r.p*k.V));
+  if(dP.length)a.push(['warn','Desconto consumindo a margem',`${dP.map(r=>esc(r.nome)).join(', ')}. O desconto leva metade ou mais do que sobraria. Troque desconto por pacote com sessões pagas antecipadamente.`]);
+  if(k.valid.some(r=>r.abc==='A'))a.push(['good','Classe A: onde está o faturamento',`${k.valid.filter(r=>r.abc==='A').map(r=>esc(r.nome)).join(', ')} concentram cerca de 80% do faturamento. São os procedimentos a proteger em preço, qualidade e agenda.`]);
+  $('servAlerts').innerHTML=alertsHtml(a);
+}
+
+/* ---------- S4. Quanto atender ---------- */
+const SPF=[['lucro','Lucro desejado (R$/mês)','depois de pagar tudo'],['fat','Faturamento atual (R$/mês)','vazio = estimativa da etapa 2'],['dias','Dias de atendimento no mês',''],['faltas','Faltas e cancelamentos (%)','dos horários agendados']];
+function renderSPEFields(){$('spFields').innerHTML=SPF.map(f=>`<label>${f[1]}<input inputmode="decimal" data-p="${f[0]}" value="${esc(S.serv.pe[f[0]])}">${f[2]?`<em>${f[2]}</em>`:''}</label>`).join('')}
+$('spFields').addEventListener('input',e=>{S.serv.pe[e.target.dataset.p]=e.target.value;updateSPE();save()});
+function spCalc(){
+  const k=servCalc(),P=S.serv.pe;
+  const L=num(P.lucro),fatIn=num(P.fat),fat=fatIn||k.fat,dias=num(P.dias)||22,fal=Math.min(num(P.faltas),90)/100;
+  const mcA=k.aPl-k.aIns-k.aPl*k.V, mcP=k.aPl>0?mcA/k.aPl:NaN, ok=k.aPl>0&&mcA>0;
+  const peA=ok?k.F/mcA:NaN, peR=peA*k.aPl, mA=ok?(k.F+L)/mcA:NaN, mR=mA*k.aPl;
+  const Hef=k.H*(1-fal), atMax=k.aH>0&&Hef>0?Hef/k.aH:NaN;
+  const res=fat>0&&ok?fat*mcP-k.F:NaN, seg=fat>0&&ok?(fat-peR)/fat:NaN;
+  const occM=isFinite(atMax)?mA/atMax:NaN, occPE=isFinite(atMax)?peA/atMax:NaN;
+  const plCap=isFinite(atMax)&&(1-k.V)>0?((k.F+L)/atMax+k.aIns)/(1-k.V):NaN, pCap=k.aD<1?plCap/(1-k.aD):NaN;
+  const hPerd=fal>0&&k.hv>0?k.hv*fal/(1-fal):0, perda=k.aH>0?hPerd*mcA/k.aH:0;
+  return {k,L,fat,fatEst:!fatIn&&k.fat>0,dias,fal,mcA,mcP,ok,peA,peR,mA,mR,Hef,atMax,res,seg,occM,occPE,plCap,pCap,hPerd,perda};
+}
+function updateSPE(){
+  if(!$('spFields').children.length)return;
+  const s=spCalc(),k=s.k;
+  if(!k.aPl){$('spHero').innerHTML='';$('spBars').innerHTML='<p class="sub" style="margin:0">Preencha os procedimentos na etapa 2 (preço, duração, insumos e atendimentos por mês).</p>';$('spAlerts').innerHTML='';return}
+  if(!s.ok){$('spHero').innerHTML='';$('spBars').innerHTML='';$('spAlerts').innerHTML=`<div class="alert bad"><b>Cada atendimento dá prejuízo</b>Com ticket médio de ${brl(k.aPl)}, insumos de ${brl(k.aIns)} e ${pct(k.V)} de variáveis, não sobra nada para pagar as fixas. Quanto mais atende, mais perde. Reveja preço, insumos e comissão antes de qualquer ação de venda.</div>`;return}
+  const hrs=n=>k.aH>0?` · ${dec(n*k.aH,0)} h de agenda`:'';
+  $('spHero').innerHTML=`
+    <div class="kpi"><div class="l">Para não ter prejuízo</div><div class="v">${brl(s.peR)}</div><div class="l">${int(s.peA)} atendimentos/mês · ${int(s.peA/s.dias)} por dia${hrs(s.peA)}</div></div>
+    <div class="kpi"><div class="l">Para lucrar ${brl(s.L)}</div><div class="v">${brl(s.mR)}</div><div class="l">${int(s.mA)} atendimentos/mês · ${int(s.mA/s.dias)} por dia${hrs(s.mA)}</div></div>
+    <div class="kpi"><div class="l">Sobra de cada atendimento</div><div class="v">${brl(s.mcA)}</div><div class="l">margem de contribuição de ${pct(s.mcP)} · ticket médio ${brl(k.aPl)}</div></div>`;
+  const items=[[s.fatEst?'Faturamento atual (estimado)':'Faturamento atual',s.fat,'var(--muted)'],['Ponto de equilíbrio',s.peR,'var(--brand-2)'],['Meta com lucro',s.mR,'var(--accent)']];
+  if(isFinite(s.atMax))items.push(['Agenda cheia',s.atMax*k.aPl,'var(--good)']);
+  const mx=Math.max(...items.map(x=>x[1]||0))||1;
+  $('spBars').innerHTML=items.map(x=>`<div class="bar"><span>${x[0]}</span><div class="track"><div class="fill" style="width:${(x[1]||0)/mx*100}%;background:${x[2]}"></div></div><span class="val">${x[1]?brl(x[1]):'—'}</span></div>`).join('');
+  const a=[];
+  if(s.fat>0){
+    if(s.res<0)a.push(['bad','Hoje a clínica opera no prejuízo',`Com ${brl(s.fat)} por mês, o resultado estimado é ${brl(s.res)}. Faltam ${brl(s.peR-s.fat)} por mês (${int((s.peR-s.fat)/k.aPl)} atendimentos) só para empatar.`]);
+    else if(s.fat<s.mR)a.push(['warn','Paga as contas, mas ainda não chega na meta',`Lucro estimado hoje: ${brl(s.res)}. Faltam ${brl(s.mR-s.fat)} por mês (cerca de ${int((s.mR-s.fat)/k.aPl)} atendimentos, ${int((s.mR-s.fat)/k.aPl/s.dias)} por dia). Margem de segurança: ${pct(s.seg)}.`]);
+    else a.push(['good','Meta atingida',`O faturamento atual gera cerca de ${brl(s.res)} de lucro. Margem de segurança de ${pct(s.seg)}.`]);
+  }
+  if(isFinite(s.atMax)){
+    if(s.occM>1)a.push(['bad','A agenda não comporta a meta',`São necessários ${int(s.mA)} atendimentos, mas cabem ${int(s.atMax)} no mês${s.fal>0?' (já descontadas as faltas)':''}. Para chegar na meta com a agenda cheia, o ticket médio de tabela precisaria ser ${brl(s.pCap)}. Outras saídas: priorizar procedimentos que rendem mais por hora, reduzir faltas ou ampliar horários.`]);
+    else if(s.occM>0.85)a.push(['warn','A meta exige agenda quase cheia',`A meta ocupa ${pct(s.occM)} das horas disponíveis. Na prática, sobra pouco espaço para encaixes e imprevistos. Considere reajuste de preço.`]);
+    else a.push(['good','A meta cabe na agenda',`Usa ${pct(s.occM)} das horas disponíveis (ponto de equilíbrio: ${pct(s.occPE)}). O desafio é comercial: encher a agenda.`]);
+  } else a.push(['warn','Capacidade não informada','Informe as horas disponíveis na etapa 2 ou na etapa Equipe para saber se a meta cabe na agenda.']);
+  if(s.perda>0)a.push(['warn','Quanto as faltas custam',`Com ${pct(s.fal)} de faltas, cerca de ${dec(s.hPerd,0)} horas por mês ficam vazias, o que representa ${brl(s.perda)} por mês que deixam de ir para as fixas e o lucro. Confirmação na véspera e lista de espera reduzem esse número.`]);
+  {const pl5=k.aPl*1.05,m5=pl5-k.aIns-pl5*k.V;
+   a.push(['good','Alavancas para chegar lá mais rápido',`Cada 5% de aumento no preço eleva a sobra por atendimento para ${brl(m5)} e reduz a meta para ${int((k.F+s.L)/m5)} atendimentos.${k.H>0&&k.aH>0?` Cada 10 pontos a mais de ocupação (${dec(k.H*0.1,0)} h) somam cerca de ${brl(k.H*0.1/k.aH*s.mcA)} por mês.`:''}`]);}
+  $('spAlerts').innerHTML=alertsHtml(a);
+}
+
+/* ---------- S5. Equipe e comissão ---------- */
+function renderEquipe(){
+  $('eqBody').innerHTML=S.serv.equipe.map((r,i)=>`<tr data-i="${i}">
+    <td class="name"><input data-f="nome" value="${esc(r.nome)}" placeholder="Nome"></td>
+    <td><select data-f="vinc">${opts(VINC,r.vinc)}</select></td>
+    ${['horas','fat','com'].map(f=>`<td><input data-f="${f}" inputmode="decimal" value="${esc(r[f])}"></td>`).join('')}
+    <td><select data-f="base">${opts(BASES,r.base)}</select></td>
+    <td><input data-f="fixo" inputmode="decimal" value="${esc(r.fixo)}" placeholder="0"></td>
+    <td class="calc" id="eco${i}"></td><td class="calc" id="ecu${i}"></td><td class="calc" id="epc${i}"></td><td class="calc" id="efh${i}"></td>
+    <td><button class="x" aria-label="Remover profissional" data-rm="${i}">×</button></td></tr>`).join('');
+  updateEquipe();
+}
+$('eqBody').addEventListener('input',e=>{const tr=e.target.closest('tr');S.serv.equipe[+tr.dataset.i][e.target.dataset.f]=e.target.value;refreshServ();save()});
+$('eqBody').addEventListener('click',e=>{if(e.target.dataset.rm!==undefined){S.serv.equipe.splice(+e.target.dataset.rm,1);if(!S.serv.equipe.length)S.serv.equipe.push(newEqRow());renderEquipe();refreshServ();save()}});
+$('addEq').onclick=()=>{S.serv.equipe.push(newEqRow());renderEquipe();save();const rows=$('eqBody').querySelectorAll('tr');rows[rows.length-1].querySelector('input').focus()};
+function eqCalc(){
+  const k=servCalc(),tx=num(S.vars.cartao)/100,insP=k.aPl>0?k.aIns/k.aPl:0;
+  const rows=S.serv.equipe.map((r,i)=>{const fat=num(r.fat),c=num(r.com)/100,fx=num(r.fixo),h=num(r.horas);
+    const base=r.base==='bruto'?fat:r.base==='liq2'?fat*(1-tx-insP):fat*(1-tx);
+    const com=Math.max(base,0)*c,custo=com+fx;
+    return {i,nome:r.nome||`Profissional ${i+1}`,vinc:r.vinc,base:r.base,fat,c,fx,h,com,custo,pc:fat>0?custo/fat:NaN,fh:h>0?fat/h:NaN}});
+  const valid=rows.filter(r=>r.fat||r.c||r.fx||r.h);
+  const fat=valid.reduce((s,r)=>s+r.fat,0),com=valid.reduce((s,r)=>s+r.com,0),fx=valid.reduce((s,r)=>s+r.fx,0);
+  return {k,tx,insP,rows,valid,fat,com,fx,custo:com+fx,pc:fat>0?(com+fx)/fat:NaN,cEf:fat>0?com/fat:NaN};
+}
+function updateEquipe(){
+  if($('eqBody').children.length!==S.serv.equipe.length)return;
+  const e=eqCalc();
+  e.rows.forEach(r=>{const has=r.fat>0||r.fx>0;
+    $('eco'+r.i).textContent=has?brl(r.com):'';
+    $('ecu'+r.i).textContent=has?brl(r.custo):'';
+    $('epc'+r.i).innerHTML=isFinite(r.pc)?`<span style="color:${r.pc>0.6?'var(--bad)':r.pc>0.5?'var(--warn)':'var(--good)'}">${pct(r.pc)}</span>`:'';
+    $('efh'+r.i).textContent=isFinite(r.fh)?brl(r.fh)+'/h':'';
+  });
+  $('eqKpis').innerHTML=`
+    <div class="kpi"><div class="v">${brl(e.fat)}</div><div class="l">Faturamento gerado pela equipe</div></div>
+    <div class="kpi"><div class="v">${brl(e.com)}</div><div class="l">Comissões por mês</div></div>
+    <div class="kpi"><div class="v">${brl(e.custo)}</div><div class="l">Custo da equipe (comissão + fixo)</div></div>
+    <div class="kpi"><div class="v">${pct(e.pc)}</div><div class="l">Custo da equipe sobre o faturamento</div></div>
+    <div class="kpi"><div class="v">${pct(e.cEf)}</div><div class="l">Comissão efetiva sobre o faturamento</div></div>`;
+  const cur3=num(S.vars.comissao)/100;
+  $('eqUseWrap').innerHTML=isFinite(e.cEf)&&e.cEf>0&&Math.abs(e.cEf-cur3)>0.005?`<div class="alert" style="margin-top:14px"><b>Comissão da etapa 3: ${pct(cur3)} · comissão efetiva da equipe: ${pct(e.cEf)}</b>Para que margens, preço sugerido e meta usem a comissão real, atualize a etapa 3.<div style="margin-top:8px"><button class="ghost" id="eqUse">Usar ${pct(e.cEf)} na etapa 3</button></div></div>`:'';
+  const a=[];
+  const hi=e.valid.filter(r=>r.pc>0.5);
+  if(hi.length)a.push([hi.some(r=>r.pc>0.6)?'bad':'warn','Custo acima de 50% do que o profissional fatura',`${hi.map(r=>`${esc(r.nome)} (${pct(r.pc)})`).join(', ')}. Sobra pouco para insumos, impostos, taxas e toda a estrutura da clínica.`]);
+  const br=e.valid.filter(r=>r.base==='bruto'&&r.c>0&&r.fat>0);
+  if(br.length&&e.tx>0)a.push(['warn','Comissão sobre o valor bruto',`${br.map(r=>esc(r.nome)).join(', ')}: a clínica paga comissão também sobre a taxa do cartão, cerca de ${brl(br.reduce((s,r)=>s+r.fat*e.tx*r.c,0))} por mês. Avalie mudar a base para o valor líquido de taxas.`]);
+  if(e.valid.length>=2&&e.fat>0){const top=[...e.valid].sort((x,y)=>y.fat-x.fat)[0];if(top.fat/e.fat>0.5)a.push(['warn','Dependência de um profissional',`${esc(top.nome)} gera ${pct(top.fat/e.fat)} do faturamento da equipe. Se sair, a clínica perde a maior parte da receita. Distribua a agenda e mantenha o relacionamento com o cliente na clínica.`])}
+  if(e.k.fat>0&&e.fat>0&&Math.abs(e.fat-e.k.fat)/e.k.fat>0.15)a.push(['warn','Faturamento diferente da etapa 2',`A equipe soma ${brl(e.fat)} e os procedimentos da etapa 2 somam ${brl(e.k.fat)}. Confira as quantidades e os valores: um dos dois está incompleto.`]);
+  if(e.valid.some(r=>r.vinc==='clt'&&r.c>0))a.push(['warn','CLT com comissão','Para CLT, a comissão faz parte da remuneração e gera reflexos em férias, 13º, FGTS e INSS. Confirme com o contador se esse custo está nas despesas fixas.']);
+  if(e.valid.some(r=>r.vinc==='parc'))a.push(['warn','Profissional parceiro','Mantenha contrato de parceria assinado, com percentuais, responsabilidades e forma de repasse. Confirme com o contador o enquadramento da atividade e o tratamento tributário do repasse.']);
+  const fh=e.valid.filter(r=>isFinite(r.fh)).sort((x,y)=>y.fh-x.fh);
+  if(fh.length>=2)a.push(['good','Faturamento por hora disponível',fh.map(r=>`${esc(r.nome)}: ${brl(r.fh)}/h`).join(' · ')+'. Diferenças grandes indicam agenda ociosa ou mix de procedimentos diferente.']);
+  $('eqAlerts').innerHTML=alertsHtml(a);
+}
+$('eqUseWrap').addEventListener('click',ev=>{if(ev.target.id!=='eqUse')return;const e=eqCalc();S.vars.comissao=(e.cEf*100).toFixed(1).replace('.',',');renderVars();updateExp();save()});
+
+/* ---------- S6. Processos e controles ---------- */
+const pk=(a,i)=>a+'-'+i;
+const pget=(a,i)=>S.serv.proc[pk(a,i)]||{st:'',obs:''};
+function procCalc(){
+  let P=0,N=0,ans=0,tot=0;const nao=[],parc=[];
+  const areas=PROC.map((A,ai)=>{let pts=0,n=0;A.items.forEach((it,ii)=>{const v=pget(ai,ii);tot++;if(v.st)ans++;
+    if(v.st&&v.st!=='na'){n++;pts+=v.st==='sim'?1:v.st==='parcial'?.5:0}
+    if(v.st==='nao')nao.push({l:it[0],a:it[1],area:A.a,obs:v.obs});if(v.st==='parcial')parc.push({l:it[0],a:it[1],area:A.a,obs:v.obs})});
+    P+=pts;N+=n;return {a:A.a,score:n?pts/n:NaN}});
+  return {areas,score:N?P/N:NaN,ans,tot,nao,parc};
+}
+const nivel=s=>!isFinite(s)?'—':s<0.4?'Inicial':s<0.7?'Em estruturação':s<0.9?'Organizado':'Gestão madura';
+function renderProc(){
+  $('procAreas').innerHTML=PROC.map((A,ai)=>`<div class="box" style="margin-top:14px"><h3 style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">${A.a}<small id="pas${ai}" style="font-family:var(--sans);font-size:.78rem;color:var(--muted);font-weight:500"></small></h3>
+    ${A.items.map((it,ii)=>{const v=pget(ai,ii);return `<div class="proc-row"><span>${esc(it[0])}</span><select data-k="${pk(ai,ii)}" data-st="${v.st}">${opts(ST,v.st)}</select><input data-o="${pk(ai,ii)}" value="${esc(v.obs)}" placeholder="Observação"></div>`}).join('')}</div>`).join('');
+  updateProc();
+}
+$('procAreas').addEventListener('change',e=>{const k=e.target.dataset.k;if(!k)return;S.serv.proc[k]=Object.assign({st:'',obs:''},S.serv.proc[k],{st:e.target.value});e.target.dataset.st=e.target.value;updateProc();save()});
+$('procAreas').addEventListener('input',e=>{const k=e.target.dataset.o;if(!k)return;S.serv.proc[k]=Object.assign({st:'',obs:''},S.serv.proc[k],{obs:e.target.value});save()});
+function updateProc(){
+  const p=procCalc();
+  p.areas.forEach((A,ai)=>{const el=$('pas'+ai);if(el)el.textContent=isFinite(A.score)?pct(A.score):''});
+  $('procKpis').innerHTML=`
+    <div class="kpi"><div class="v">${pct(p.score)}</div><div class="l">Nota geral dos controles</div></div>
+    <div class="kpi"><div class="v">${nivel(p.score)}</div><div class="l">Nível de maturidade</div></div>
+    <div class="kpi"><div class="v">${p.ans}/${p.tot}</div><div class="l">Itens avaliados</div></div>
+    <div class="kpi"><div class="v">${p.nao.length} · ${p.parc.length}</div><div class="l">Itens com “Não” · “Parcial”</div></div>`;
+  const a=[];
+  const weak=p.areas.filter(A=>isFinite(A.score)).sort((x,y)=>x.score-y.score);
+  if(weak.length&&weak[0].score<0.7)a.push(['warn','Área mais frágil',`${esc(weak[0].a)} (${pct(weak[0].score)}). Comece a implantação por ela.`]);
+  if(p.nao.length)a.push(['bad','Prioridades: controles que não existem',p.nao.slice(0,6).map(x=>`• ${esc(x.a)}`).join('<br>')+(p.nao.length>6?`<br>… e mais ${p.nao.length-6} no relatório.`:'')]);
+  if(!p.ans)a.push(['','Como usar','Faça esta etapa junto com o cliente, de preferência com o sistema aberto. O que for marcado como Não ou Parcial vira ação no relatório.']);
+  $('procAlerts').innerHTML=alertsHtml(a);
+}
+
+/* ---------- Atualização geral ---------- */
+function refreshServ(){updateServ();updateSPE();updateEquipe()}
+
+/* ---------- S7. Relatório (serviços) ---------- */
+function renderReportServ(){
+  const k=servCalc(),s=spCalc(),e=eqCalc(),p=procCalc(),F=totFix(),V=totVar();
+  const L=LIB(),sw=q=>labelsOf(q);
+  const swotLines=Q.map(q=>{const l=sw(q);return l.length?`<p><span class="tag ${q}">${L[q].t}</span>${l.map(x=>esc(x.l)).join('; ')}</p>`:''}).join('');
+  const acts=['Fr','A','O','F'].flatMap(q=>sw(q).map(x=>`<li>${esc(x.a)}</li>`)).join('');
+  const cross=crossStrategies().filter(c=>c.r.length).map(c=>`<li><b>${c.k}:</b> ${c.r.map(esc).join(' ')}</li>`).join('');
+  const date=new Date().toLocaleDateString('pt-BR');
+  const rk=k.valid.filter(r=>r.pl>0&&r.h>0&&isFinite(r.mcH)).sort((x,y)=>y.mcH-x.mcH);
+  const neg=k.valid.filter(r=>r.pl>0&&(r.mc<0||(isFinite(k.cH)&&r.luc<0)));
+  const below=isFinite(k.cH)?k.valid.filter(r=>r.p>0&&r.luc>=0&&isFinite(r.sug)&&r.p<r.sug*0.98):[];
+  const li=(arr)=>arr.map(x=>`<li><b>${esc(x.area)}:</b> ${esc(x.a)}${x.obs?` <em style="color:var(--muted)">(${esc(x.obs)})</em>`:''}</li>`).join('');
+  $('report').innerHTML=`
+    <img class="rlogo" src="${document.querySelector('.brandbar img').src}" alt="Mudiflow Estratégia Financeira">
+    <h2 style="margin-top:4px">${esc(S.client||'Cliente')}</h2>
+    <p class="sub">Diagnóstico financeiro de serviços · ${date}</p>
+    <h3>1. Análise SWOT / FOFA</h3>
+    ${swotLines||'<p class="sub">Não preenchida.</p>'}
+    ${startHere()?`<div class="start">${startHere()}</div>`:''}
+    ${cross?`<p><b>Estratégias cruzadas</b></p><ul>${cross}</ul>`:''}
+    <h3>2. Serviços e custos</h3>
+    ${k.valid.length&&k.aPl?`<ul><li>Faturamento estimado: <b>${brl(k.fat)}</b>/mês em ${dec(k.at,0)} atendimentos (ticket médio ${brl(k.aPl)}).</li>
+      ${k.H>0?`<li>Agenda: ${dec(k.hv,0)} h vendidas de ${dec(k.H,0)} h disponíveis, ocupação de <b>${pct(k.occ)}</b>. Custo fixo por hora: ${brl(k.cH)}.</li>`:''}
+      ${rk.length?`<li>Maior rendimento por hora: ${rk.slice(0,3).map(r=>`${esc(r.nome)} (${brl(r.mcH)}/h)`).join(', ')}.</li>`:''}
+      ${neg.length?`<li><b>Dão prejuízo:</b> ${neg.map(r=>`${esc(r.nome)}${isFinite(r.sug)?` (preço sugerido ${brl(r.sug)})`:''}`).join(', ')}.</li>`:''}
+      ${below.length?`<li>Abaixo do preço para ${pct(k.mD)} de lucro: ${below.map(r=>`${esc(r.nome)} ${brl(r.p)} → ${brl(r.sug)}`).join('; ')}.</li>`:''}</ul>`:'<p class="sub">Não preenchido.</p>'}
+    <h3>3. Despesas</h3>
+    <ul><li>Fixas: <b>${brl(F)}</b> por mês.</li><li>Variáveis: <b>${pct(V)}</b> de cada atendimento (impostos, taxas, comissão e outras).</li></ul>
+    <h3>4. Quanto atender</h3>
+    ${s.ok?`<ul><li>Ponto de equilíbrio: <b>${brl(s.peR)}</b>/mês (${int(s.peA)} atendimentos, ${int(s.peA/s.dias)} por dia).</li>
+      <li>Meta para lucrar ${brl(s.L)}: <b>${brl(s.mR)}</b>/mês (${int(s.mA)} atendimentos, ${int(s.mA/s.dias)} por dia).</li>
+      ${s.fat>0?`<li>Faturamento atual${s.fatEst?' (estimado)':''}: ${brl(s.fat)} · resultado estimado ${brl(s.res)}.</li>`:''}
+      ${isFinite(s.occM)?`<li>A meta ocupa ${pct(s.occM)} da agenda${s.occM>1?`: não cabe. Ticket médio necessário com agenda cheia: ${brl(s.pCap)}`:''}.</li>`:''}
+      ${s.perda>0?`<li>Faltas de ${pct(s.fal)}: cerca de ${brl(s.perda)} por mês deixam de entrar.</li>`:''}</ul>`
+     :k.aPl>0?'<p><b>Atenção:</b> com os números atuais cada atendimento gera prejuízo. Rever preço, insumos e comissão é a prioridade.</p>':'<p class="sub">Não preenchido.</p>'}
+    <h3>5. Equipe e comissão</h3>
+    ${e.valid.length&&e.fat>0?`<ul><li>Faturamento da equipe: ${brl(e.fat)}; comissões ${brl(e.com)}; custo total da equipe <b>${brl(e.custo)}</b> (${pct(e.pc)} do faturamento).</li>
+      ${e.valid.map(r=>`<li>${esc(r.nome)} (${({clt:'CLT',aut:'Autônomo/PJ',parc:'Parceiro'})[r.vinc]||''}): fatura ${brl(r.fat)}, custa ${brl(r.custo)}${isFinite(r.pc)?` (${pct(r.pc)})`:''}${isFinite(r.fh)?`, ${brl(r.fh)} por hora`:''}.</li>`).join('')}</ul>`:'<p class="sub">Não preenchida.</p>'}
+    <h3>6. Processos e controles</h3>
+    ${p.ans?`<p>Nota geral: <b>${pct(p.score)}</b> · nível <b>${nivel(p.score)}</b></p>
+      <ul>${p.areas.map(A=>`<li>${esc(A.a)}: ${isFinite(A.score)?pct(A.score):'não avaliado'}</li>`).join('')}</ul>`:'<p class="sub">Não avaliados.</p>'}
+    <h3>7. Plano de ação</h3>
+    ${p.nao.length?`<p><b>Prioridade 1: implantar os controles que faltam</b></p><ul>${li(p.nao)}</ul>`:''}
+    ${neg.length||below.length?`<p><b>Prioridade 1: corrigir preços</b></p><ul>${neg.concat(below.filter(r=>!neg.includes(r))).map(r=>`<li>${esc(r.nome)}: ajustar de ${brl(r.p)} para ${isFinite(r.sug)?brl(r.sug):'um valor que cubra o custo'}.</li>`).join('')}</ul>`:''}
+    ${p.parc.length?`<p><b>Prioridade 2: completar os controles parciais</b></p><ul>${li(p.parc)}</ul>`:''}
+    ${acts?`<p><b>Estratégia (SWOT/FOFA)</b></p><ul>${acts}</ul>`:''}
+    ${!p.nao.length&&!p.parc.length&&!acts&&!neg.length&&!below.length?'<p class="sub">Preencha a análise SWOT/FOFA e a etapa Processos para gerar o plano.</p>':''}`;
+}
+
+
 /* ---------- Navegação ---------- */
+const ORDER_C=[['p1','Análise SWOT / FOFA'],['p2','Estoque e custos'],['p3','Despesas'],['p4','Quanto vender'],['p5','Nova produção'],['p6','Relatório']];
+const ORDER_S=[['p1','Análise SWOT / FOFA'],['p2s','Serviços e custos'],['p3','Despesas'],['p4s','Quanto atender'],['p5s','Equipe e comissão'],['p7s','Processos e controles'],['p6','Relatório']];
+const ORDER=()=>isServ()?ORDER_S:ORDER_C;
 let cur=1;
-function go(n){
-  cur=Math.min(6,Math.max(1,n));
-  document.querySelectorAll('nav.steps button').forEach(b=>b.setAttribute('aria-selected',b.dataset.p==cur));
-  document.querySelectorAll('section.panel').forEach(s=>s.classList.toggle('on',s.id==='p'+cur));
-  if(cur===6){renderReport();addReportNotes()}
+const curId=()=>{const O=ORDER();return O[Math.min(O.length,Math.max(1,cur))-1][0]};
+function renderNav(){
+  const O=ORDER();if(cur>O.length)cur=O.length;
+  $('steps').innerHTML=O.map((o,i)=>`<button role="tab" data-n="${i+1}" aria-selected="${i+1===cur}"><span>${i+1}</span>${i===1&&!isServ()?TXT.produto.nav:o[1]}</button>`).join('');
+}
+// scroll: só nos botões Próxima/Anterior, e só até a barra de etapas (clicar nas etapas não mexe a tela)
+function go(n,scroll){
+  const O=ORDER();cur=Math.min(O.length,Math.max(1,n));const id=O[cur-1][0];
+  document.querySelectorAll('nav.steps button').forEach(b=>b.setAttribute('aria-selected',b.dataset.n==cur));
+  document.querySelectorAll('section.panel').forEach(s=>s.classList.toggle('on',s.id===id));
+  if(id==='p6'){renderReport();addReportNotes()}
   paintLock();
   $('prev').style.visibility=cur===1?'hidden':'visible';
-  $('next').style.visibility=cur===6?'hidden':'visible';
-  window.scrollTo({top:0,behavior:'smooth'});
+  $('next').style.visibility=cur===O.length?'hidden':'visible';
+  if(scroll){const t=$('steps').getBoundingClientRect().top;if(t<0)$('steps').scrollIntoView({behavior:'smooth',block:'start'})}
 }
-document.querySelectorAll('nav.steps button').forEach(b=>b.onclick=()=>go(+b.dataset.p));
-$('prev').onclick=()=>go(cur-1);$('next').onclick=()=>go(cur+1);
+$('steps').addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(+b.dataset.n)});
+$('prev').onclick=()=>go(cur-1,true);$('next').onclick=()=>go(cur+1,true);
 
 /* ---------- Cliente ---------- */
-function renderAll(){$('clientName').value=S.client;paintRamo();renderSwot();renderVars();renderPEFields();renderFix();renderStock();renderProd();fillSaved();if(cur===6){renderReport();addReportNotes()}paintLock();applyTipo();paintCustoQ()}
+function modeTexts(){
+  const sv=isServ();
+  $('heroTxt').textContent=sv?'Preencha etapa por etapa: análise SWOT/FOFA, serviços e custos, despesas, meta de atendimentos, equipe e comissão e processos financeiros. Cada etapa mostra os seus números na hora. As soluções e o relatório final com o plano de ação são liberados depois da revisão da consultora.':HERO_C;
+  $('p3sub').textContent=sv?'Fixas são as que existem mesmo sem atender ninguém. Variáveis acompanham cada atendimento e entram como percentual do preço. Os insumos de cada procedimento já foram tratados na etapa 2.':'Fixas são as que existem mesmo sem vender nada. Variáveis acompanham cada venda e entram como percentual do preço. O custo do produto já foi tratado na etapa 2.';
+  const t=$(sv?'p2s':'p2'),q=$('custoQ');if(q&&q.parentNode!==t)t.insertBefore(q,t.querySelector('.box:not(.custoq)'));
+}
+const HERO_C=$('heroTxt').textContent;
+// completa dados antigos e, ao virar "serviços", aproveita o que já foi digitado na tabela de produtos
+function normS(){
+  S.prod=S.prod||blankProd();S.pe=Object.assign(blank().pe,S.pe);
+  S.swotS=S.swotS||blank().swotS;S.serv=Object.assign(blankServ(),S.serv||{});S.serv.pe=Object.assign(blankServ().pe,S.serv.pe);S.serv.proc=S.serv.proc||{};
+  if(!Array.isArray(S.serv.itens)||!S.serv.itens.length)S.serv.itens=[newServRow()];
+  if(!Array.isArray(S.serv.equipe)||!S.serv.equipe.length)S.serv.equipe=[newEqRow()];
+  if(S.tipo==='servico'){
+    if(S.fixas.every(r=>!num(r.valor))&&S.fixas.length===FIX_DEFAULT.length&&S.fixas.every((r,i)=>r.nome===FIX_DEFAULT[i]))S.fixas=FIX_SERV.map(n=>({nome:n,valor:''}));
+    const vazio=!S.serv.itens.some(r=>r.nome||r.preco||r.qtd||r.ins||r.dur);
+    const est=(S.estoque||[]).filter(r=>r.nome||r.preco||r.custo||r.vendas);
+    if(vazio&&est.length)S.serv.itens=est.map(r=>({nome:r.nome||'',dur:'',preco:r.preco||'',desc:r.desc||'',ins:r.custo||'',qtd:r.vendas||''}));
+    const sv=S.swotS.sel,ss=S.swotS.custom,old=S.swot&&S.swot.custom;
+    if(old&&Q.every(q=>!sv[q].length&&!ss[q].length))Q.forEach(q=>{ss[q]=(old[q]||[]).slice()});
+  }
+}
+function setTipo(t){
+  t=t==='servico'?'servico':'produto';if((S.tipo==='servico')===(t==='servico')){S.tipo=t;return}
+  const emptyFix=S.fixas.every(r=>!num(r.valor));
+  if(emptyFix){const to=t==='servico'?FIX_SERV:FIX_DEFAULT,from=t==='servico'?FIX_DEFAULT:FIX_SERV;if(S.fixas.length===from.length&&S.fixas.every((r,i)=>r.nome===from[i]))S.fixas=to.map(n=>({nome:n,valor:''}))}
+  S.tipo=t;normS();cur=1;renderAll();go(1);
+}
+function renderAll(){$('clientName').value=S.client;paintRamo();modeTexts();renderNav();renderSwot();renderVars();renderPEFields();renderFix();renderStock();renderProd();renderServ();renderSPEFields();renderEquipe();renderProc();refreshServ();fillSaved();if(curId()==='p6'){renderReport();addReportNotes()}paintLock();applyTipo();paintCustoQ()}
 $('clientName').oninput=e=>{S.client=e.target.value;save()};
 
 /* ---------- Acesso online ---------- */
@@ -1188,16 +1656,16 @@ try{
 
 $('authLogo').src=document.querySelector('.brandbar img').src;
 $('p1').insertAdjacentHTML('beforeend','<div class="wait">Marque os pontos que se aplicam ao seu negócio. As soluções e estratégias para cada um deles serão apresentadas pela Elaine na revisão do seu diagnóstico.</div>');
-['p2','p3','p4','p5'].forEach(id=>$(id).insertAdjacentHTML('beforeend','<div class="wait">Os números acima são calculados na hora. A leitura deles, com os pontos de atenção e as recomendações, vem na revisão da Elaine.</div>'));
+['p2','p3','p4','p5','p2s','p4s','p5s','p7s'].forEach(id=>$(id).insertAdjacentHTML('beforeend','<div class="wait">Os números acima são calculados na hora. A leitura deles, com os pontos de atenção e as recomendações, vem na revisão da Elaine.</div>'));
 function view(v){['vLogin','vForgot','vNewPass'].forEach(id=>$(id).hidden=id!==v);const f=$(v).querySelector('input');if(f)setTimeout(()=>f.focus(),50)}
 function msg(id,t,ok){$(id).textContent=t||'';$(id).className='msg '+(ok?'ok':'err')}
 function fmtDate(s){if(!s)return '—';const d=new Date(s);return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function loadRow(row){
   CUR=row;
-  S=Object.assign(blank(),row.dados||{});S.prod=S.prod||blankProd();S.pe=Object.assign(blank().pe,S.pe);
+  S=Object.assign(blank(),row.dados||{});normS();
   if(!S.client&&row.empresa)S.client=row.empresa;
   document.body.classList.remove('noclient');
-  renderAll();paintStatus();setSaveMsg('');go(1);
+  cur=1;renderAll();paintStatus();setSaveMsg('');go(1);
   $('reviewBox').hidden=ROLE!=='admin';if(ROLE==='admin')renderReview();
   $('modBox').hidden=true;document.body.dataset.mod='diag';paintMods();
   loadAcomp();loadFin();
@@ -1231,11 +1699,11 @@ function paintLock(){
   if(!locked)return;
   if(CUR.status==='enviado'){
     $('lockTitle').textContent='Seu relatório está em revisão';
-    $('lockText').textContent='A Elaine está conferindo os seus números. Assim que ela aprovar, o relatório completo aparece aqui para você imprimir ou salvar em PDF. Você ainda pode ajustar as etapas 1 a 5 enquanto isso.';
+    $('lockText').textContent='A Elaine está conferindo os seus números. Assim que ela aprovar, o relatório completo aparece aqui para você imprimir ou salvar em PDF. Você ainda pode ajustar as etapas 1 a '+(ORDER().length-1)+' enquanto isso.';
     $('btnSend2').hidden=true;
   }else{
     $('lockTitle').textContent='Envie o diagnóstico para revisão';
-    $('lockText').textContent='Quando terminar de preencher as etapas 1 a 5, envie para a Elaine revisar. Depois da aprovação, o relatório completo fica disponível aqui.';
+    $('lockText').textContent='Quando terminar de preencher as etapas 1 a '+(ORDER().length-1)+', envie para a Elaine revisar. Depois da aprovação, o relatório completo fica disponível aqui.';
     $('btnSend2').hidden=false;
   }
 }
@@ -1376,6 +1844,7 @@ async function delClient(id){
 
 /* ---------- Resumo da revisão (só admin; usa os cálculos das etapas, sem alterá-los) ---------- */
 function reviewData(){
+  if(isServ())return reviewDataServ();
   const st=stockCalc(), k=peCalc(), pr=prodCalc(), F=totFix(), V=totVar();
   const out=[], miss=[];
   const add=(sev,etapa,titulo,texto,sol,imp,impTxt)=>out.push({sev,etapa,titulo,texto,sol,imp:imp||0,impTxt});
@@ -1514,6 +1983,7 @@ function reviewData(){
 
 /* Soluções práticas: planos de ação com números do cliente */
 function reviewPlays(){
+  if(isServ())return [];
   const st=stockCalc(), k=peCalc(), V=totVar(), F=totFix();
   const fatRef=k.fat||st.vendasR, tk=k.pl, P=[];
   const giro=st.valid.filter(r=>r.v>0&&!st.parados.includes(r)).sort((a,b)=>b.v-a.v);
@@ -1684,6 +2154,7 @@ function campText(){
     `\n\nIdeias:\n`+campIdeias(c).map((t,i)=>`${i+1}. ${t}`).join('\n');
 }
 function campSection(){
+  if(isServ())return '';
   return `<h4>Planejador de campanha</h4><details class="play"><summary><b>Planejar uma campanha (ex.: Black Friday)</b><span>Ver o plano</span></summary><div class="pb">
     <p style="margin:0">Escolha a data e o desconto que o cliente pensa em dar. O plano mostra item por item onde o desconto vale a pena e onde vira prejuízo.</p>
     <div class="campin"><label>Campanha<select id="campNomeSel">${CAMPS.map(n=>`<option ${n===CAMP.nome?'selected':''}>${n}</option>`).join('')}</select></label>
@@ -1740,10 +2211,91 @@ $('reviewBody').addEventListener('click',async e=>{
   }
 });
 
+/* ---------- Resumo da revisão no modo serviços (só admin; usa os cálculos das etapas, sem alterá-los) ---------- */
+function reviewDataServ(){
+  const k=servCalc(), s=spCalc(), e=eqCalc(), p=procCalc(), F=totFix(), V=totVar();
+  const out=[], miss=[];
+  const add=(sev,etapa,titulo,texto,sol,imp,impTxt)=>out.push({sev,etapa,titulo,texto,sol,imp:imp||0,impTxt});
+
+  // Situação geral
+  let head={c:'',t:''};
+  if(!k.aPl) head={c:'',t:'Ainda faltam os procedimentos com preço e atendimentos por mês (etapa 2) para fechar o diagnóstico financeiro.'};
+  else if(!s.ok) head={c:'bad',t:`<b>Cada atendimento dá prejuízo.</b> Com ticket médio de ${brl(k.aPl)}, insumos de ${brl(k.aIns)} e ${pct(k.V)} de variáveis, sobra ${brl(s.mcA)} por atendimento. Esta é a prioridade absoluta.`};
+  else if(s.fat>0&&s.res<0) head={c:'bad',t:`<b>Opera no prejuízo.</b> Resultado estimado de ${brl(s.res)} por mês${s.fatEst?' (faturamento estimado pela etapa 2)':''}. Para empatar, o faturamento precisaria subir ${brl(s.peR-s.fat)} por mês; para o lucro desejado de ${brl(s.L)}, ${brl(s.mR-s.fat)}.`};
+  else if(s.fat>0&&s.fat<s.mR) head={c:'',t:`<b>Paga as contas, mas não chega na meta.</b> Lucro estimado de ${brl(s.res)} por mês. Para o lucro desejado de ${brl(s.L)}, o faturamento precisaria subir ${brl(s.mR-s.fat)} por mês. Margem de segurança: ${pct(s.seg)}.`};
+  else if(s.fat>0) head={c:'good',t:`<b>Meta atingida.</b> Lucro estimado de ${brl(s.res)} por mês, com margem de segurança de ${pct(s.seg)}.`};
+  else head={c:'',t:`Ponto de equilíbrio de ${brl(s.peR)} por mês e meta de ${brl(s.mR)}.`};
+
+  // Preços
+  const negMC=k.valid.filter(r=>r.pl>0&&r.mc<0);
+  if(negMC.length)add(3,2,'Procedimentos abaixo do custo direto',negMC.map(r=>esc(r.nome)).join(', '),
+    '<ul>'+negMC.map(r=>`<li>${esc(r.nome)}: preço sugerido <b>${isFinite(r.sug)?brl(r.sug):'—'}</b> (hoje ${brl(r.p)}).</li>`).join('')+'</ul>',negMC.reduce((t,r)=>t-r.q*r.mc,0),'Corrigir preço');
+  if(isFinite(k.cH)){
+    const negL=k.valid.filter(r=>r.pl>0&&r.mc>=0&&r.luc<0);
+    if(negL.length)add(2,2,'Não pagam o custo da hora da clínica',`${negL.map(r=>esc(r.nome)).join(', ')}. Custo fixo por hora: ${brl(k.cH)}.`,
+      '<ul>'+negL.map(r=>`<li>${esc(r.nome)}: ${brl(r.p)} → <b>${brl(r.sug)}</b></li>`).join('')+'</ul>',negL.reduce((t,r)=>t-r.q*r.luc,0));
+  }
+  // Agenda
+  if(k.H>0&&k.hv>0&&k.occ<0.6)add(2,4,'Agenda ociosa',`${dec(k.H-k.hv,0)} horas livres por mês (${pct(1-k.occ)} da agenda).`,
+    `<ul><li>Cada hora vendida a mais rende cerca de ${brl(k.mcHmed)}.</li><li>Ofertas para os horários vazios, plano de manutenção e retorno agendado na saída.</li></ul>`,(k.H*0.1)*(isFinite(k.mcHmed)?k.mcHmed:0));
+  if(s.ok&&isFinite(s.occM)&&s.occM>1)add(3,4,'A agenda não comporta a meta',`São necessários ${int(s.mA)} atendimentos e cabem ${int(s.atMax)}.`,
+    `<ul><li>Ticket médio necessário com a agenda cheia: <b>${brl(s.pCap)}</b> (hoje ${brl(k.aP)}).</li><li>Priorizar procedimentos que rendem mais por hora.</li></ul>`,0,'Rever preço');
+  if(s.perda>0)add(2,4,'Faltas e cancelamentos',`Com ${pct(s.fal)} de faltas, cerca de ${brl(s.perda)} por mês deixam de entrar.`,
+    '<ul><li>Confirmação na véspera, lista de espera e política de faltas (sinal ou cobrança).</li></ul>',s.perda);
+  // Equipe
+  const hi=e.valid.filter(r=>r.pc>0.5);
+  if(hi.length)add(2,5,'Equipe com custo acima de 50% do que fatura',hi.map(r=>`${esc(r.nome)} (${pct(r.pc)})`).join(', '),
+    '<ul><li>Rever percentual, base de cálculo ou o mix de procedimentos desses profissionais.</li></ul>',0);
+  const br=e.valid.filter(r=>r.base==='bruto'&&r.c>0&&r.fat>0);
+  if(br.length&&e.tx>0){const v=br.reduce((t,r)=>t+r.fat*e.tx*r.c,0);
+    add(2,5,'Comissão sobre o valor bruto',`${br.map(r=>esc(r.nome)).join(', ')}: a clínica paga comissão também sobre a taxa do cartão.`,
+      `<ul><li>Mudar a base para o valor líquido de taxas economiza cerca de ${brl(v)} por mês.</li></ul>`,v);}
+  if(isFinite(e.cEf)&&e.cEf>0&&Math.abs(e.cEf-num(S.vars.comissao)/100)>0.005)
+    add(2,3,'Comissão da etapa 3 diferente da real',`Na etapa 3 está ${pct(num(S.vars.comissao)/100)}; a equipe dá ${pct(e.cEf)} sobre o faturamento.`,
+      '<ul><li>Use o botão da etapa Equipe para levar a comissão real para a etapa 3 antes de aprovar.</li></ul>',1e8,'Ajustar antes de aprovar');
+  // Processos
+  if(p.nao.length)add(3,6,'Controles que não existem',`${p.nao.length} ${p.nao.length>1?'itens marcados':'item marcado'} como Não.`,
+    '<ul>'+p.nao.slice(0,5).map(x=>`<li><b>${esc(x.l)}</b>: ${esc(x.a)}</li>`).join('')+(p.nao.length>5?`<li>… e mais ${p.nao.length-5} no relatório.</li>`:'')+'</ul>',p.nao.length*1e6);
+  if(p.parc.length)add(1,6,'Controles parciais',`${p.parc.length} ${p.parc.length>1?'itens':'item'} como Parcial.`,'',p.parc.length);
+  // Despesas
+  const big=[...S.fixas].sort((a,b)=>num(b.valor)-num(a.valor))[0];
+  if(F>0&&big&&num(big.valor)/F>0.4)add(2,3,'Uma despesa concentra as fixas',`“${esc(big.nome)}” é ${pct(num(big.valor)/F)} das despesas fixas (${brl(num(big.valor))}).`,
+    `<ul><li>Renegociar 10% dela libera ${brl(num(big.valor)*0.1)} por mês.</li></ul>`,num(big.valor)*0.1);
+  if(!S.fixas.some(r=>/pr[oó].?labore/i.test(r.nome)&&num(r.valor)>0))
+    add(2,3,'Pró-labore não informado','Sem o salário do dono, o resultado parece melhor do que é.',
+      '<ul><li>Combinar com a cliente um valor realista e incluir nas fixas antes de aprovar o relatório.</li></ul>',1e9,'Ajustar antes de aprovar');
+  // Estratégia
+  const sh=startHere(), risco=crossStrategies().find(c=>c.k.startsWith('Risco'));
+  if(sh)add(1,1,'Direção estratégica',sh.replace(/<[^>]+>/g,''),risco&&risco.r.length?`<ul>${risco.r.slice(0,2).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'',0);
+  if(S.sabeCusto==='nao'||S.sabeCusto==='mais'){
+    const lib=CUR&&modsOf(CUR).includes('calc_custo');
+    add(2,2,'Custos possivelmente estimados',`A cliente respondeu "${S.sabeCusto==='nao'?'Não':'Mais ou menos'}" quando perguntamos se sabe calcular os custos.`,
+      `<ul><li>${lib?'A Calculadora de custos já está liberada: confira se ela montou as fichas dos procedimentos principais.':'Libere a Calculadora de custos (no aviso da etapa 2 ou em Módulos e plano).'}</li><li>Na reunião, confira os insumos dos 3 procedimentos que mais faturam antes de aprovar.</li></ul>`,5e8,'Conferir antes de aprovar');
+  }
+
+  // Dados que faltam
+  if(!Q.reduce((t,q)=>t+labelsOf(q).length,0))miss.push(['Análise SWOT/FOFA sem nenhum ponto marcado.',1]);
+  if(!k.valid.length)miss.push(['Nenhum procedimento na etapa 2.',2]);
+  else{const sd=k.valid.filter(r=>!r.dur).length;if(sd)miss.push([`${sd} procedimento${sd>1?'s':''} sem duração.`,2]);
+    const sq=k.valid.filter(r=>!r.q).length;if(sq)miss.push([`${sq} procedimento${sq>1?'s':''} sem atendimentos por mês.`,2]);
+    const si=k.valid.filter(r=>!r.ins).length;if(si)miss.push([`${si} procedimento${si>1?'s':''} sem insumos.`,2])}
+  if(!k.H)miss.push(['Horas disponíveis para atendimento (etapa 2 ou Equipe).',2]);
+  if(!F)miss.push(['Despesas fixas não preenchidas.',3]);
+  if(!V)miss.push(['Despesas variáveis zeradas (impostos e taxas de cartão quase sempre existem).',3]);
+  if(!num(S.serv.pe.fat))miss.push(['Faturamento atual (opcional, etapa 4; sem ele usamos a estimativa da etapa 2).',4]);
+  if(!s.L)miss.push(['Lucro desejado (etapa 4).',4]);
+  if(!e.valid.length)miss.push(['Equipe e comissão (etapa 5).',5]);
+  if(!p.ans)miss.push(['Processos e controles não avaliados (opcional, etapa 6: dá para fazer com a cliente na reunião).',6]);
+
+  out.sort((a,b)=>(b.sev-a.sev)||(b.imp-a.imp));
+  return {head,out,miss};
+}
+
 /* ---------- Pontos de atenção no relatório ---------- */
 function addReportNotes(){
   const rep=$('report');if(!rep||!rep.innerHTML)return;
-  const parts=[['Estoque e custos','stockAlerts'],['Despesas','expAlerts'],['Quanto vender','peAlerts'],['Nova produção','prodAlerts']]
+  const parts=(isServ()?[['Serviços e custos','servAlerts'],['Despesas','expAlerts'],['Quanto atender','spAlerts'],['Equipe e comissão','eqAlerts'],['Processos e controles','procAlerts']]
+    :[['Estoque e custos','stockAlerts'],['Despesas','expAlerts'],['Quanto vender','peAlerts'],['Nova produção','prodAlerts']])
     .map(([t,id])=>{const h=$(id)?$(id).innerHTML.trim():'';return h?`<h4>${t}</h4>${h}`:''}).join('');
   if(!parts)return;
   const sec=`<h3>Pontos de atenção e recomendações</h3><div class="notes">${parts}</div>`;
@@ -1762,7 +2314,8 @@ function listaMeses(){const out=[],d=new Date();d.setDate(1);for(let i=0;i<13;i+
 function metricas(dados){
   const keep=S;
   try{
-    S=Object.assign(blank(),JSON.parse(JSON.stringify(dados||{})));S.prod=S.prod||blankProd();S.pe=Object.assign(blank().pe,S.pe);
+    S=Object.assign(blank(),JSON.parse(JSON.stringify(dados||{})));normS();
+    if(isServ()){const s=spCalc();return {fat:s.fat,mcP:isFinite(s.mcP)?s.mcP:NaN,ok:s.ok,mgBruta:NaN,F:totFix(),peR:s.ok?s.peR:NaN,res:s.fat>0?s.res:NaN,L:s.L,parado:0,desc:0}}
     const st=stockCalc(),k=peCalc();
     return {fat:k.fat,mcP:isFinite(k.mcP)?k.mcP:NaN,ok:k.ok,mgBruta:st.vtTot>0?(st.vtTot-st.tot)/st.vtTot:NaN,F:totFix(),
       peR:k.ok?k.peR:NaN,res:k.fat>0?k.res:NaN,L:k.L,parado:st.parados.reduce((s,r)=>s+r.ct,0),desc:st.descMes};
@@ -2029,11 +2582,11 @@ function paintRamo(){
 $('ramoSel').onchange=()=>{
   const v=$('ramoSel').value;
   if(v==='Outro'){$('ramoOutroWrap').hidden=false;S.ramo=$('ramoOutro').value.trim();setTimeout(()=>$('ramoOutro').focus(),50)}
-  else{$('ramoOutroWrap').hidden=true;S.ramo=v;if(v){S.tipo=tipoDoRamo(v);$('tipoSel').value=S.tipo}}
+  else{$('ramoOutroWrap').hidden=true;S.ramo=v;if(v){setTipo(tipoDoRamo(v));$('tipoSel').value=S.tipo}}
   applyTipo();save();
 };
 $('ramoOutro').oninput=()=>{S.ramo=$('ramoOutro').value.trim();save()};
-$('tipoSel').onchange=()=>{S.tipo=$('tipoSel').value;applyTipo();save()};
+$('tipoSel').onchange=()=>{setTipo($('tipoSel').value);applyTipo();save()};
 const TXT={
   produto:{nav:'Estoque e custos',h2:'Estoque e custos',sub:'Liste os produtos com quantidade, custo de compra/produção, preço de venda, desconto médio concedido e quanto vende por mês. A ferramenta calcula margem, cobertura e a curva ABC.',
     th:['Produto','Qtd em estoque','Custo unit. (R$)','Preço venda (R$)','Desconto (%)','Vendas/mês (un.)'],add:'Adicionar produto',ph:'Nome do produto',cap:'Capacidade máxima (un./mês)'},
@@ -2042,7 +2595,6 @@ const TXT={
 };
 function applyTipo(){
   const t=TXT[S.tipo==='servico'?'servico':'produto'];
-  const nb=document.querySelector('nav.steps button[data-p="2"]');if(nb)nb.innerHTML='<span>2</span>'+t.nav;
   $('p2').querySelector('h2').textContent=t.h2;$('p2').querySelector('p.sub').textContent=t.sub;
   $('p2').querySelectorAll('thead th').forEach((th,i)=>{if(i<6)th.textContent=t.th[i]});
   $('addStock').textContent=t.add;
@@ -2368,12 +2920,12 @@ function updCusto(){
     <div class="kpi"><div class="l">De onde vem o custo</div><div class="cubars">
       ${[['Materiais',k.mat],['Mão de obra',k.mo],['Outros',k.out]].map(([n,v])=>`<div><span>${n}</span><b>${brl(v/k.rend)}</b><i style="width:${k.tot>0?v/k.tot*100:0}%"></i><small>${pz(v)}</small></div>`).join('')}
     </div></div>`;
-  const rows=S.estoque.map((r,i)=>[i,r.nome]).filter(r=>r[1]);
+  const SV=isServ(),rows=(SV?S.serv.itens:S.estoque).map((r,i)=>[i,r.nome]).filter(r=>r[1]),uIns=k.rend>0?(k.mat+k.out)/k.rend:0;
   const match=rows.find(r=>plNorm(r[1])===plNorm(f.nome));
   $('cuSend').innerHTML=k.un>0&&CUR&&modsOf(CUR).includes('diagnostico')||(k.un>0&&ROLE==='admin')?`<h3>Levar para o diagnóstico</h3>
     <p class="sub" style="margin:0 0 10px">Use este custo na etapa 2 (${sv?'Serviços e custos':'Estoque e custos'}).</p>
     <div class="cusendrow"><select id="cuDest"><option value="new">Adicionar como novo ${sv?'serviço':'produto'}</option>${rows.map(r=>`<option value="${r[0]}" ${match&&match[0]===r[0]?'selected':''}>Substituir o custo de: ${esc(r[1])}</option>`).join('')}</select>
-    <button id="cuUse">Usar ${brl(k.un)} como custo</button></div><p class="sub cumsg" id="cuMsg"></p>`:'';
+    <button id="cuUse">${SV?`Usar ${brl(uIns)} como insumos`:`Usar ${brl(k.un)} como custo`}</button></div>${SV?`<p class="sub" style="margin:8px 0 0;font-size:.8rem">Vão para a etapa 2 só os materiais e outros custos (${brl(uIns)} por atendimento). O valor do profissional entra pela comissão (etapa 3) ou pelo salário nas despesas fixas, para não contar duas vezes.</p>`:''}<p class="sub cumsg" id="cuMsg"></p>`:'';
 }
 $('cuSel').onchange=()=>{cuData().sel=+$('cuSel').value;renderCusto();cuSave()};
 $('cuNova').onclick=()=>{const C=cuData();C.fichas.push(cuNovaFicha());C.sel=C.fichas.length-1;renderCusto();cuSave();setTimeout(()=>{const i=$('cuBody').querySelector('[data-cf="nome"]');if(i)i.focus()},50)};
@@ -2398,6 +2950,11 @@ $('cuBody').addEventListener('click',e=>{
   if(t.id==='cuUse'){
     const k=cuCalc(f),v=(Math.round(k.un*100)/100).toFixed(2).replace('.',','),dest=$('cuDest').value;
     let nome;
+    if(isServ()){const vi=(Math.round((k.rend>0?(k.mat+k.out)/k.rend:0)*100)/100).toFixed(2).replace('.',',');
+      if(dest==='new'){S.serv.itens=S.serv.itens.filter(r=>r.nome||r.preco||r.qtd||r.ins||r.dur);S.serv.itens.push(Object.assign(newServRow(),{nome:f.nome||'Novo serviço',ins:vi}));nome=f.nome||'o novo serviço'}
+      else{S.serv.itens[+dest].ins=vi;nome=S.serv.itens[+dest].nome}
+      renderServ();refreshServ();save();updCusto();
+      $('cuMsg').innerHTML=`Pronto: ${brl(num(vi))} de insumos foi para <b>${esc(nome)}</b> na etapa 2.${dest==='new'?' Complete lá a duração, o preço e os atendimentos por mês.':''}`;return}
     if(dest==='new'){S.estoque=S.estoque.filter(r=>r.nome||r.qtd||r.custo||r.preco||r.vendas);S.estoque.push({nome:f.nome||(cuSv()?'Novo serviço':'Novo produto'),qtd:'',custo:v,preco:'',desc:'',vendas:''});nome=f.nome||'o novo item'}
     else{S.estoque[+dest].custo=v;nome=S.estoque[+dest].nome}
     renderStock();applyTipo();save();updCusto();
@@ -2413,7 +2970,7 @@ function paintCustoQ(){
   $('custoQTitle').textContent=`Você sabe calcular o custo de cada ${sv?'serviço':'produto'}?`;
   box.querySelectorAll('[data-sc]').forEach(b=>b.classList.toggle('on',b.dataset.sc===v));
   let h='';
-  if(v==='sim')h=sv?'Ótimo! Use o custo completo de cada atendimento: materiais, descartáveis e o que você paga ao profissional por atendimento.':'Ótimo! Use o custo completo de cada produto: compra ou produção, frete de compra, embalagem e etiqueta.';
+  if(v==='sim')h=sv?'Ótimo! Na coluna de insumos, use o custo de materiais e descartáveis de cada atendimento. O que você paga ao profissional entra pela comissão (etapa 3) e pela etapa Equipe e comissão.':'Ótimo! Use o custo completo de cada produto: compra ou produção, frete de compra, embalagem e etiqueta.';
   else if(v){
     if(adm)h=lib?'A cliente respondeu que não sabe calcular com segurança. A Calculadora de custos já está liberada para ela.':`A cliente respondeu que não sabe calcular com segurança. <button class="go" id="custoLib">Liberar a Calculadora de custos para ela</button>`;
     else if(lib)h=`Sem problema: a Calculadora de custos te ajuda a descobrir, item por item, e já traz o resultado para cá. <button class="go" id="custoOpen">Abrir a Calculadora de custos</button>`;
